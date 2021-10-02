@@ -1,1 +1,9 @@
 /ChatFileDlg$1.class
+/IPLayer.class
+/IPLayer$_IP_ADDR.class
+/IPLayer$_IP_HEADER.class
+/TCPLayer.class
+/TCPLayer$_ETHERNET_ADDR.class
+/TCPLayer$_ETHERNET_HEADER.class
+/TCPLayer$_TCP_ADDR.class
+/TCPLayer$_TCP_HEADER.class
