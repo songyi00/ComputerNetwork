@@ -121,6 +121,15 @@ public class EthernetLayer implements BaseLayer {
 		return true;
 		
 	}
+	
+	// input 은 ARP Message
+	public boolean ARPSend(byte[] input, int length) {
+		m_sHeader.enet_type = intToByte2(0x0806);
+		m_sHeader.enet_data = input;
+		byte[] bytes = ObjToByte(m_sHeader, input, length);
+		this.GetUnderLayer().Send(bytes, length+14);
+		return true;
+	}
 
 	public byte[] RemoveEtherHeader(byte[] input, int length) {
 		byte[] data = new byte[length - 14];
@@ -128,7 +137,8 @@ public class EthernetLayer implements BaseLayer {
 			data[i] = input[14 + i];
 		return data;
 	}
-
+	
+	// 내가 보냈던 packet이 다시 나에게 온 경우인지
 	public boolean IsItMyPacket(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			if (m_sHeader.enet_srcaddr.addr[i] == input[6 + i])
@@ -138,7 +148,8 @@ public class EthernetLayer implements BaseLayer {
 		}
 		return true;
 	}
-
+	
+	// 목적지가 나인지
 	public boolean IsItMine(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			if (m_sHeader.enet_srcaddr.addr[i] == input[i])
@@ -181,6 +192,27 @@ public class EthernetLayer implements BaseLayer {
 	
 	}
 	
+	public boolean ARPReceive(byte[] input) {
+		byte[] data;
+		// type이 0x0806이면 ARP
+		int temp_type = byte2ToInt(input[12], input[13]);
+		if(temp_type == 0x0806) {
+			// ARP Message다 채워져서 ethernet에 도착했을 때
+			// 송신자의 Ethernet으로 다시 돌아옴
+			if(chkAddr(input) || !IsItMyPacket(input)) {	// 
+				data = RemoveEtherHeader(input, input.length);
+				this.GetUpperLayer(0).ARPReceive_Mac(data);
+			}
+			// ethernet header의 dst가 broadcast인 경우
+			// 처음 수신자의 ARP Layer에 도달
+			else if((IsItBroadcast(input)) || !IsItMyPacket(input)) { 
+				data = RemoveEtherHeader(input, input.length);
+				this.GetUpperLayer(0).ARPReceive_Bro(data);
+			}
+		}
+	}
+	
+	// 목적지가 나인지(ethernet header의 dst주소가 나인지 확인) 
 	private boolean chkAddr(byte[] input) {
 		byte[] temp = m_sHeader.enet_srcaddr.addr;
 		for(int i = 0; i< 6; i++)
