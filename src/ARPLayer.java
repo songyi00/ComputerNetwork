@@ -110,7 +110,7 @@ public class ARPLayer implements BaseLayer{
 		return true; 
 	}
 	
-	public boolean Receive(byte[] input) {
+	public boolean ARPReceive(byte[] input) {
 		int protocol_type; //Protocol type
 		int ARP_Request = 1 ; //ARP Request Opcode
 		
