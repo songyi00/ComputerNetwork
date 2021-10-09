@@ -74,7 +74,7 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 	static JComboBox<String> NICComboBox;
 
 	int adapterNumber = 0;
-
+	byte[] srcIPNumber, dstIPNumber, srcMacNumber;
 	String Text;
 	JProgressBar progressBar;
 
@@ -86,19 +86,13 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 		m_LayerMgr.AddLayer(new NILayer("NI"));
 		m_LayerMgr.AddLayer(new EthernetLayer("Ethernet"));
-<<<<<<< HEAD
-		m_LayerMgr.AddLayer(new ChatAppLayer("ARPLayer"));
-		//m_LayerMgr.AddLayer(new ChatAppLayer("IPLayer"));
-		//m_LayerMgr.AddLayer(new ChatAppLayer("TCPLayer"));
-=======
-		//m_LayerMgr.AddLayer(new IPLayer("IP"));
-		//m_LayerMgr.AddLayer(new ARPLayer("ARP"));
->>>>>>> song2
+		m_LayerMgr.AddLayer(new ARPLayer("ARP"));
+		m_LayerMgr.AddLayer(new IPLayer("IP"));
+		m_LayerMgr.AddLayer(new TCPLayer("TCP"));
 		m_LayerMgr.AddLayer(new ChatAppLayer("ChatApp"));
 		m_LayerMgr.AddLayer(new FileAppLayer("FileApp"));
 		m_LayerMgr.AddLayer(new ChatFileDlg("GUI"));
-
-		m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( *ChatApp ( *GUI ) *FileApp ( +GUI ) ) )");
+		m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( *ARP ( *IP ( *TCP ( *ChatApp ( *GUI ) *FileApp ( +GUI ) ) ) ) ) )");
 		///////////////////
 	}
 
@@ -118,10 +112,14 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 					byte[] MacAddress = new byte[6];
 					byte[] IpAddress = new byte[4];
 					
+					srcIPNumber = IpAddress;
+					srcMacNumber = MacAddress;
+					
 					String srcMac = srcMacAddress.getText();
 					String srcIP = srcIpAddress.getText();
 					System.out.println("srcMacAddress : "+ srcMac);
 					System.out.println("srcIPAddress : "+ srcIP);
+					
 					String[] byte_srcMac = srcMac.split("-");
 					for (int i = 0; i < 6; i++) {
 						MacAddress[i] = (byte) Integer.parseInt(byte_srcMac[i], 16);
@@ -143,7 +141,19 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 				}
 			}
-
+			if (e.getSource() == dstIpSendButton) {
+				if (dstIpSendButton.getText() == "Send") {
+					String dstIP = cacheArea.getText();
+					byte[] dstIPAddress = new byte[4];
+					String[] byte_dstIP = dstIP.split("\\.");
+					for (int i=0; i<4; i++) {
+						dstIPAddress[i] = (byte) Integer.parseInt(byte_dstIP[i]);
+					}
+					dstIPNumber = dstIPAddress;
+					this.GetUnderLayer().ARPSend(srcIPNumber, dstIPNumber);
+				}
+			}
+			
 			if (e.getSource() == Chat_send_Button) {
 				if (Setting_Button.getText() == "Reset") {
 					for (int i = 0; i < 10; i++) {
