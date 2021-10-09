@@ -121,13 +121,13 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 						MacAddress[i] = (byte) Integer.parseInt(byte_srcMac[i], 16);
 					}
 
-					String[] byte_srcIp = srcIP.split(".");
+					String[] byte_srcIp = srcIP.split("\\.");
 					for (int i = 0; i < 4; i++) {
-						IpAddress[i] = (byte) Integer.parseInt(byte_srcIp[i], 16);
+						IpAddress[i] = (byte) Integer.parseInt(byte_srcIp[i]);
 					}
 					
-					((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
-					((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(IpAddress);
+					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
+					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(IpAddress);
 					
 					((NILayer) m_LayerMgr.GetLayer("NI")).SetAdapterNumber(adapterNumber);
 
