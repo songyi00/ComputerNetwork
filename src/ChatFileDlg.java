@@ -38,19 +38,28 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 	private JTextField ChattingWrite;
 	private JTextField PathWrite;
 	private JTextField dstIpWrite;
+	private JTextField proxyDeviceWrite;
+	private JTextField proxyIpWrite;
+	private JTextField proxyMacWrite; 
+	private JTextField GArpAddressWrite;
+	
 	Container contentPane;
 
 	JTextArea ChattingArea;
 	JTextArea fileArea;
 	JTextArea srcMacAddress;
-	JTextArea IpAddress;
+	JTextArea srcIpAddress;
 	JTextArea cacheArea;
 	JTextArea proxyArpArea;
 
 	JLabel lblsrc;
 	JLabel lbldst;
 	JLabel dstIpLabel;
-
+	JLabel proxyDevice;
+	JLabel proxyIp;
+	JLabel proxyMac;
+	JLabel GArpAddress;
+	
 	JButton Setting_Button;
 	JButton Chat_send_Button;
 	JButton File_send_Button;
@@ -58,6 +67,9 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 	JButton itemDeleteButton;
 	JButton allDeleteButton;
 	JButton dstIpSendButton; 
+	JButton proxyAddButton;
+	JButton proxyDeleteButton;
+	JButton GArpSendButton;
 	
 	static JComboBox<String> NICComboBox;
 
@@ -74,6 +86,14 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 		m_LayerMgr.AddLayer(new NILayer("NI"));
 		m_LayerMgr.AddLayer(new EthernetLayer("Ethernet"));
+<<<<<<< HEAD
+		m_LayerMgr.AddLayer(new ChatAppLayer("ARPLayer"));
+		//m_LayerMgr.AddLayer(new ChatAppLayer("IPLayer"));
+		//m_LayerMgr.AddLayer(new ChatAppLayer("TCPLayer"));
+=======
+		//m_LayerMgr.AddLayer(new IPLayer("IP"));
+		//m_LayerMgr.AddLayer(new ARPLayer("ARP"));
+>>>>>>> song2
 		m_LayerMgr.AddLayer(new ChatAppLayer("ChatApp"));
 		m_LayerMgr.AddLayer(new FileAppLayer("FileApp"));
 		m_LayerMgr.AddLayer(new ChatFileDlg("GUI"));
@@ -90,36 +110,36 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 				if (Setting_Button.getText() == "Reset") {
 					srcMacAddress.setText("");
-					IpAddress.setText("");
+					srcIpAddress.setText("");
 					Setting_Button.setText("Setting");
 					srcMacAddress.setEnabled(true);
-					IpAddress.setEnabled(true);
+					srcIpAddress.setEnabled(true);
 				} else {
-					byte[] srcAddress = new byte[6];
-					byte[] dstAddress = new byte[6];
-
-					String src = srcMacAddress.getText();
-					String dst = IpAddress.getText();
-					System.out.println("srcMacAddress : "+ src);
-					System.out.println("dstMacAddress : "+ dst);
-					String[] byte_src = src.split("-");
+					byte[] MacAddress = new byte[6];
+					byte[] IpAddress = new byte[4];
+					
+					String srcMac = srcMacAddress.getText();
+					String srcIP = srcIpAddress.getText();
+					System.out.println("srcMacAddress : "+ srcMac);
+					System.out.println("srcIPAddress : "+ srcIP);
+					String[] byte_srcMac = srcMac.split("-");
 					for (int i = 0; i < 6; i++) {
-						srcAddress[i] = (byte) Integer.parseInt(byte_src[i], 16);
+						MacAddress[i] = (byte) Integer.parseInt(byte_srcMac[i], 16);
 					}
 
-					String[] byte_dst = dst.split("-");
-					for (int i = 0; i < 6; i++) {
-						dstAddress[i] = (byte) Integer.parseInt(byte_dst[i], 16);
+					String[] byte_srcIp = srcIP.split("\\.");
+					for (int i = 0; i < 4; i++) {
+						IpAddress[i] = (byte) Integer.parseInt(byte_srcIp[i]);
 					}
-
-					((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(srcAddress);
-					((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(dstAddress);
-
+					
+					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
+					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(IpAddress);
+					
 					((NILayer) m_LayerMgr.GetLayer("NI")).SetAdapterNumber(adapterNumber);
 
 					Setting_Button.setText("Reset");
-					IpAddress.setEnabled(false);
 					srcMacAddress.setEnabled(false);
+					srcIpAddress.setEnabled(false);
 
 				}
 			}
@@ -183,13 +203,13 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 		arpCachePanel.setLayout(null);
 		
 		JPanel arpCacheEditorPanel = new JPanel();
-		arpCacheEditorPanel.setBounds(10, 15, 340, 230);
+		arpCacheEditorPanel.setBounds(10, 15, 350, 230);
 		arpCachePanel.add(arpCacheEditorPanel);
 		arpCacheEditorPanel.setLayout(null);
 		
 		cacheArea = new JTextArea();
 		cacheArea.setEditable(false);
-		cacheArea.setBounds(0, 0, 340, 220);
+		cacheArea.setBounds(0, 0, 350, 220);
 		arpCacheEditorPanel.add(cacheArea);// chatting edit
 		
 		itemDeleteButton = new JButton("Item Delete");
@@ -246,12 +266,12 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 		JPanel fileTransferPanel = new JPanel();// file panel
 		fileTransferPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "file transfer",
 				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		fileTransferPanel.setBounds(380, 380, 360, 90);
+		fileTransferPanel.setBounds(380, 380, 350, 90);
 		contentPane.add(fileTransferPanel);
 		fileTransferPanel.setLayout(null);
 
 		JPanel fileEditorPanel = new JPanel();// chatting write panel
-		fileEditorPanel.setBounds(10, 20, 340, 60);
+		fileEditorPanel.setBounds(10, 20, 330, 60);
 		fileTransferPanel.add(fileEditorPanel);
 		fileEditorPanel.setLayout(null);
 
@@ -280,33 +300,80 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 		JPanel proxyArpPanel = new JPanel();
 		proxyArpPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Proxy Arp Entry",
 				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		proxyArpPanel.setBounds(380, 5, 350, 371);
+		proxyArpPanel.setBounds(380, 5, 350, 370);
 		contentPane.add(proxyArpPanel);
 		proxyArpPanel.setLayout(null);
 		
 		JPanel proxyEditorPanel = new JPanel();// proxy editor panel
-		proxyEditorPanel.setBounds(10, 15, 330, 300);
+		proxyEditorPanel.setBounds(5, 15, 330, 160);
 		proxyArpPanel.add(proxyEditorPanel);
 		proxyEditorPanel.setLayout(null);
 		
 		proxyArpArea = new JTextArea();
 		proxyArpArea.setEditable(false);
-		proxyArpArea.setBounds(10, 10, 310, 150);
+		proxyArpArea.setBounds(5, 5, 420, 150);
 		proxyEditorPanel.add(proxyArpArea);// proxy arp entry
+		
+		JPanel proxyInputPanel = new JPanel();
+		proxyInputPanel.setBorder(new BevelBorder(BevelBorder.LOWERED,null,null,null,null));
+		proxyInputPanel.setBounds(10,200,320,150);
+		proxyInputPanel.setLayout(null);
+		proxyArpPanel.add(proxyInputPanel);
+		
+		proxyDevice= new JLabel("Device");
+		proxyDevice.setBounds(20, 10, 60, 20);
+		proxyInputPanel.add(proxyDevice);
+		
+		proxyIp = new JLabel("IP 주소");
+		proxyIp.setBounds(20,40,60,20);
+		proxyInputPanel.add(proxyIp);
+		
+		proxyMac = new JLabel("Mac 주소");
+		proxyMac.setBounds(20,70,60,20);
+		proxyInputPanel.add(proxyMac);
+		
+		proxyDeviceWrite = new JTextField();
+		proxyDeviceWrite.setBounds(100,10,200,20);
+		proxyInputPanel.add(proxyDeviceWrite);
+		
+		proxyIpWrite = new JTextField();
+		proxyIpWrite.setBounds(100,40,200,20);
+		proxyInputPanel.add(proxyIpWrite);
+		
+		proxyMacWrite = new JTextField();
+		proxyMacWrite.setBounds(100,70,200,20);
+		proxyInputPanel.add(proxyMacWrite);
+		
+		proxyAddButton = new JButton("Add");
+		proxyAddButton.setBounds(70,100,80,30);
+		proxyDeleteButton = new JButton("Delete");
+		proxyDeleteButton.setBounds(180,100,80,30);
+		proxyInputPanel.add(proxyAddButton);
+		proxyInputPanel.add(proxyDeleteButton);
 		
 		// gratuitous panel 
 		JPanel gratuitousPanel = new JPanel();
 		gratuitousPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gratuitous ARP",
 				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		gratuitousPanel.setBounds(10, 5, 350, 371);
+		gratuitousPanel.setBounds(730, 5, 250, 200);
 		contentPane.add(gratuitousPanel);
 		gratuitousPanel.setLayout(null);
+		
+		GArpAddress = new JLabel("H/W address");
+		GArpAddress.setBounds(10,30,100,10);
+		GArpAddressWrite = new JTextField();
+		GArpAddressWrite.setBounds(20,60,200,20);
+		GArpSendButton = new JButton("전송");
+		GArpSendButton.setBounds(70,100,100,30);
+		gratuitousPanel.add(GArpAddress);
+		gratuitousPanel.add(GArpAddressWrite);
+		gratuitousPanel.add(GArpSendButton);
 		
 		// setting panel
 		JPanel settingPanel = new JPanel();
 		settingPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "setting",
 				TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
-		settingPanel.setBounds(740, 380, 236, 371);
+		settingPanel.setBounds(730, 380, 250, 270);
 		contentPane.add(settingPanel);
 		settingPanel.setLayout(null);
 
@@ -322,7 +389,7 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 		srcMacAddress = new JTextArea();
 		srcMacAddress.setBounds(2, 2, 170, 20);
-		sourceAddressPanel.add(srcMacAddress);// src address
+		sourceAddressPanel.add(srcMacAddress);// 자신의 mac address
 
 		JPanel IpPanel = new JPanel();
 		IpPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -334,9 +401,9 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 		lbldst.setBounds(10, 125, 190, 20);
 		settingPanel.add(lbldst);
 
-		IpAddress = new JTextArea();
-		IpAddress.setBounds(2, 2, 170, 20);
-		IpPanel.add(IpAddress);// 자신의 ip address
+		srcIpAddress = new JTextArea();
+		srcIpAddress.setBounds(2, 2, 170, 20);
+		IpPanel.add(srcIpAddress);// 자신의 ip address
 
 		JLabel NICLabel = new JLabel("Select NIC");
 		NICLabel.setBounds(10, 20, 170, 20);
