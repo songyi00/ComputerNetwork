@@ -78,7 +78,6 @@ public class NILayer implements BaseLayer {
 		// start = System.currentTimeMillis();
 		if (m_AdapterObject.sendPacket(buf) != Pcap.OK) {
 			System.err.println(m_AdapterObject.getErr());
-			System.out.println("alfo");
 			return false;
 		}
 		return true;
