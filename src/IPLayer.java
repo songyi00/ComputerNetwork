@@ -68,11 +68,11 @@ public class IPLayer implements BaseLayer {
 		m_sHeader.ip_data = null;
 	}
 	
-	public _IP_ADDR GetEnetDstAddress() {
+	public _IP_ADDR GetIPDstAddress() {
 		return m_sHeader.ip_dst;
 	}
 
-	public _IP_ADDR GetEnetSrcAddress() {
+	public _IP_ADDR GetIPSrcAddress() {
 		return m_sHeader.ip_src;
 	}
 	
@@ -86,6 +86,12 @@ public class IPLayer implements BaseLayer {
 		for (int i = 0; i < 6; i++) {
 			m_sHeader.ip_src.addr[i] = input[i];
 		}
+	}
+	
+	public void ARPSend(byte[] src, byte[] dst) {
+		this.SetIpSrcAddress(src);
+		this.SetIpDstAddress(dst);
+		this.GetUnderLayer().ARPSend(src, dst);
 	}
 	
 //	public byte[] ObjToByte(_IP_HEADER Header, byte[] input, int length) {//data
