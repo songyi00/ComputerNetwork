@@ -51,7 +51,7 @@ public class IPLayer implements BaseLayer {
 	}
 	
 	public void ResetHeader() {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 4; i++) {
 			m_sHeader.ip_dst.addr[i] = (byte) 0x00;
 			m_sHeader.ip_src.addr[i] = (byte) 0x00;
 		}
