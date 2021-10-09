@@ -99,7 +99,7 @@ public class ARPLayer implements BaseLayer{
 		frame.sender_ip = ip_src;
 		frame.target_ip = ip_dst;
 		byte[] bytes = ObjToByte(frame, 28);
-		this.GetUnderLayer().ARPSend(bytes, 28);
+		((EthernetLayer) this.GetUnderLayer()).ARPSend(bytes, 28);
 		return false;
 	}
 	

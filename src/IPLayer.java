@@ -91,7 +91,7 @@ public class IPLayer implements BaseLayer {
 	public void ARPSend(byte[] src, byte[] dst) {
 		this.SetIpSrcAddress(src);
 		this.SetIpDstAddress(dst);
-		this.GetUnderLayer().ARPSend(src, dst);
+		((ARPLayer) this.GetUnderLayer()).ARPSend(src, dst);
 	}
 	
 //	public byte[] ObjToByte(_IP_HEADER Header, byte[] input, int length) {//data

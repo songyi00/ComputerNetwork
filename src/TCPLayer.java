@@ -247,7 +247,7 @@ public class TCPLayer implements BaseLayer{
 	
 	// Application에서 받은 ip 주소를 IP Layer에게 ip 주소 넘기기
 	public void ARPSend(byte[] src, byte[] dst) {
-		this.GetUnderLayer().ARPSend(src, dst);
+		((IPLayer) this.GetUnderLayer()).ARPSend(src, dst);
 	}
 
 	
