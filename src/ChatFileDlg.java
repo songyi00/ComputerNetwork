@@ -48,7 +48,7 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 	JTextArea ChattingArea;
 	JTextArea fileArea;
 	JTextArea srcMacAddress;
-	JTextArea IpAddress;
+	JTextArea srcIpAddress;
 	JTextArea cacheArea;
 	JTextArea proxyArpArea;
 
@@ -86,9 +86,14 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 		m_LayerMgr.AddLayer(new NILayer("NI"));
 		m_LayerMgr.AddLayer(new EthernetLayer("Ethernet"));
+<<<<<<< HEAD
 		m_LayerMgr.AddLayer(new ChatAppLayer("ARPLayer"));
 		//m_LayerMgr.AddLayer(new ChatAppLayer("IPLayer"));
 		//m_LayerMgr.AddLayer(new ChatAppLayer("TCPLayer"));
+=======
+		//m_LayerMgr.AddLayer(new IPLayer("IP"));
+		//m_LayerMgr.AddLayer(new ARPLayer("ARP"));
+>>>>>>> song2
 		m_LayerMgr.AddLayer(new ChatAppLayer("ChatApp"));
 		m_LayerMgr.AddLayer(new FileAppLayer("FileApp"));
 		m_LayerMgr.AddLayer(new ChatFileDlg("GUI"));
@@ -105,36 +110,36 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 				if (Setting_Button.getText() == "Reset") {
 					srcMacAddress.setText("");
-					IpAddress.setText("");
+					srcIpAddress.setText("");
 					Setting_Button.setText("Setting");
 					srcMacAddress.setEnabled(true);
-					IpAddress.setEnabled(true);
+					srcIpAddress.setEnabled(true);
 				} else {
-					byte[] srcAddress = new byte[6];
-					byte[] dstAddress = new byte[6];
-
-					String src = srcMacAddress.getText();
-					String dst = IpAddress.getText();
-					System.out.println("srcMacAddress : "+ src);
-					System.out.println("dstMacAddress : "+ dst);
-					String[] byte_src = src.split("-");
+					byte[] MacAddress = new byte[6];
+					byte[] IpAddress = new byte[4];
+					
+					String srcMac = srcMacAddress.getText();
+					String srcIP = srcIpAddress.getText();
+					System.out.println("srcMacAddress : "+ srcMac);
+					System.out.println("srcIPAddress : "+ srcIP);
+					String[] byte_srcMac = srcMac.split("-");
 					for (int i = 0; i < 6; i++) {
-						srcAddress[i] = (byte) Integer.parseInt(byte_src[i], 16);
+						MacAddress[i] = (byte) Integer.parseInt(byte_srcMac[i], 16);
 					}
 
-					String[] byte_dst = dst.split("-");
-					for (int i = 0; i < 6; i++) {
-						dstAddress[i] = (byte) Integer.parseInt(byte_dst[i], 16);
+					String[] byte_srcIp = srcIP.split("\\.");
+					for (int i = 0; i < 4; i++) {
+						IpAddress[i] = (byte) Integer.parseInt(byte_srcIp[i]);
 					}
-
-					((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(srcAddress);
-					((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(dstAddress);
-
+					
+					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
+					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(IpAddress);
+					
 					((NILayer) m_LayerMgr.GetLayer("NI")).SetAdapterNumber(adapterNumber);
 
 					Setting_Button.setText("Reset");
-					IpAddress.setEnabled(false);
 					srcMacAddress.setEnabled(false);
+					srcIpAddress.setEnabled(false);
 
 				}
 			}
@@ -384,7 +389,7 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 
 		srcMacAddress = new JTextArea();
 		srcMacAddress.setBounds(2, 2, 170, 20);
-		sourceAddressPanel.add(srcMacAddress);// src address
+		sourceAddressPanel.add(srcMacAddress);// 자신의 mac address
 
 		JPanel IpPanel = new JPanel();
 		IpPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -396,9 +401,9 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 		lbldst.setBounds(10, 125, 190, 20);
 		settingPanel.add(lbldst);
 
-		IpAddress = new JTextArea();
-		IpAddress.setBounds(2, 2, 170, 20);
-		IpPanel.add(IpAddress);// 자신의 ip address
+		srcIpAddress = new JTextArea();
+		srcIpAddress.setBounds(2, 2, 170, 20);
+		IpPanel.add(srcIpAddress);// 자신의 ip address
 
 		JLabel NICLabel = new JLabel("Select NIC");
 		NICLabel.setBounds(10, 20, 170, 20);
