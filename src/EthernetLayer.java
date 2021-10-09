@@ -104,7 +104,7 @@ public class EthernetLayer implements BaseLayer {
     private int byte2ToInt(byte value1, byte value2) {
         return (int)((value1 << 8) | (value2));
     }
-
+    
 	public boolean Send(byte[] input, int length) {
 		m_sHeader.enet_type = intToByte2(0x2080);
 		m_sHeader.enet_data = input;
@@ -119,7 +119,6 @@ public class EthernetLayer implements BaseLayer {
 		byte[] bytes = ObjToByte(m_sHeader, input, length);
 		this.GetUnderLayer().Send(bytes, length + 14);
 		return true;
-		
 	}
 
 	public byte[] RemoveEtherHeader(byte[] input, int length) {
