@@ -102,7 +102,7 @@ public class FileAppLayer implements BaseLayer {
     public boolean sortFileList(int lastFrameNumber) {
         // 모든 프레임을 받았는지 확인
         if((fileByteList.size() - 1 != lastFrameNumber) || (receivedLength != targetLength)) {
-            ((ChatFileDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 실패\n");
+            ((ARPDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 실패\n");
             return false;
         }
 
@@ -118,7 +118,7 @@ public class FileAppLayer implements BaseLayer {
     }
 
     public void setAndStartSendFile() {
-        ChatFileDlg upperLayer = (ChatFileDlg) this.GetUpperLayer(0);
+        ARPDlg upperLayer = (ARPDlg) this.GetUpperLayer(0);
         File sendFile = upperLayer.getFile();
         int sendTotalLength; // 보내야하는 총 크기
         int sendedLength; // 현재 보낸 크기
@@ -130,7 +130,7 @@ public class FileAppLayer implements BaseLayer {
             sendTotalLength = (int)sendFile.length();
             this.setFileSize(sendTotalLength);
             byte[] sendData =new byte[1448];
-            ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setMaximum(sendTotalLength);
+            ((ARPDlg)this.GetUpperLayer(0)).progressBar.setMaximum(sendTotalLength);
             if(sendTotalLength <= 1448) {
                 // 파일 정보 송신
                 setFragmentation(0);
@@ -142,7 +142,7 @@ public class FileAppLayer implements BaseLayer {
                 fileReader.read(sendData);
                 this.Send(sendData, sendData.length);
                 sendedLength += sendData.length;
-                ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setValue(sendedLength);
+                ((ARPDlg)this.GetUpperLayer(0)).progressBar.setValue(sendedLength);
             } else {
                 sendedLength = 0;
                 // 파일 정보 송신
@@ -162,7 +162,7 @@ public class FileAppLayer implements BaseLayer {
                     }
                     sendedLength += 1448;
                     this.increaseSeqNum();
-                    ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setValue(sendedLength);
+                    ((ARPDlg)this.GetUpperLayer(0)).progressBar.setValue(sendedLength);
                 }
 
                 byte[] getRealDataFrame = new byte[sendTotalLength - sendedLength];
@@ -176,7 +176,7 @@ public class FileAppLayer implements BaseLayer {
                 this.Send(getRealDataFrame, getRealDataFrame.length);
                 sendedLength += getRealDataFrame.length;
                 count = 0;
-                ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setValue(sendedLength);
+                ((ARPDlg)this.GetUpperLayer(0)).progressBar.setValue(sendedLength);
             }
             fileInputStream.close();
             fileReader.close();
@@ -203,9 +203,9 @@ public class FileAppLayer implements BaseLayer {
             file = new File("./" + fileName); //받는 경로..
 
             // Progressbar 초기화
-            ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setMinimum(0);
-            ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setMaximum(targetLength);
-            ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setValue(0);
+            ((ARPDlg)this.GetUpperLayer(0)).progressBar.setMinimum(0);
+            ((ARPDlg)this.GetUpperLayer(0)).progressBar.setMaximum(targetLength);
+            ((ARPDlg)this.GetUpperLayer(0)).progressBar.setValue(0);
 
             // 받은 크기) 초기화
             receivedLength = 0;
@@ -236,18 +236,18 @@ public class FileAppLayer implements BaseLayer {
                                 data = RemoveCappHeader(fileSortList.get(frameCount), fileSortList.get(frameCount).length);
                                 fileOutputStream.write(data);
                             }
-                            ((ChatFileDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 및 생성 완료\n");
+                            ((ARPDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 및 생성 완료\n");
                             fileByteList = new ArrayList();
                         } catch (FileNotFoundException e) {
-                            ((ChatFileDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 실패\n");
+                            ((ARPDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 실패\n");
                             e.printStackTrace();
                         } catch (IOException e) {
-                            ((ChatFileDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 실패\n");
+                            ((ARPDlg)this.GetUpperLayer(0)).ChattingArea.append("파일 수신 실패\n");
                             e.printStackTrace();
                         }
                     }
                 }
-                ((ChatFileDlg)this.GetUpperLayer(0)).progressBar.setValue(receivedLength); // Progressbar 갱신
+                ((ARPDlg)this.GetUpperLayer(0)).progressBar.setValue(receivedLength); // Progressbar 갱신
             }
         }
 
