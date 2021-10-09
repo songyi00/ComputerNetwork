@@ -36,5 +36,4 @@ interface BaseLayer {
 	public default boolean Receive() {
 		return false;
 	}
-
 }

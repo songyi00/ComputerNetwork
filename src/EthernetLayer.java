@@ -235,7 +235,6 @@ public class EthernetLayer implements BaseLayer {
 		if (pUpperLayer == null)
 			return;
 		this.p_aUpperLayer.add(nUpperLayerCount++, pUpperLayer);
-		// nUpperLayerCount++;
 	}
 
 	@Override
