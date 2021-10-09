@@ -36,7 +36,7 @@ public class ARPLayer implements BaseLayer{
 	
 	public ARPLayer(String pName) {
 		pLayerName = pName;
-		ResetFrame();
+		//ResetFrame();
 	}
 	
 	public void ResetFrame() {
