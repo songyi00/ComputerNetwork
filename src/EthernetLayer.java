@@ -196,19 +196,17 @@ public class EthernetLayer implements BaseLayer {
 		// type이 0x0806이면 ARP
 		int temp_type = byte2ToInt(input[12], input[13]);
 		if(temp_type == 0x0806) {
-			// ARP Message다 채워져서 ethernet에 도착했을 때
+			// 1. ARP Message다 채워져서 ethernet에 도착했을 때
 			// 송신자의 Ethernet으로 다시 돌아옴
-			if(chkAddr(input) || !IsItMyPacket(input)) {	// 
-				data = RemoveEtherHeader(input, input.length);
-				this.GetUpperLayer(0).ARPReceive_Mac(data);
-			}
-			// ethernet header의 dst가 broadcast인 경우
+			// 2. ethernet header의 dst가 broadcast인 경우
 			// 처음 수신자의 ARP Layer에 도달
-			else if((IsItBroadcast(input)) || !IsItMyPacket(input)) { 
+			if(chkAddr(input) || !IsItMyPacket(input) || (IsItBroadcast(input))) {	// 
 				data = RemoveEtherHeader(input, input.length);
-				this.GetUpperLayer(0).ARPReceive_Bro(data);
+				((ARPLayer) this.GetUpperLayer(0)).ARPReceive(data);
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	// 목적지가 나인지(ethernet header의 dst주소가 나인지 확인) 
