@@ -26,7 +26,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jnetpcap.PcapIf;
 
-public class ChatFileDlg extends JFrame implements BaseLayer {
+public class ARPDlg extends JFrame implements BaseLayer {
 
 	public int nUpperLayerCount = 0;
 	public String pLayerName = null;
@@ -89,10 +89,10 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 		m_LayerMgr.AddLayer(new ARPLayer("ARP"));
 		m_LayerMgr.AddLayer(new IPLayer("IP"));
 		m_LayerMgr.AddLayer(new TCPLayer("TCP"));
-		m_LayerMgr.AddLayer(new ChatAppLayer("ChatApp"));
-		m_LayerMgr.AddLayer(new FileAppLayer("FileApp"));
-		m_LayerMgr.AddLayer(new ChatFileDlg("GUI"));
-		m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( *ARP ( *IP ( *TCP ( *ChatApp ( *GUI ) *FileApp ( +GUI ) ) ) ) ) )");
+		//m_LayerMgr.AddLayer(new ChatAppLayer("ChatApp"));
+		//m_LayerMgr.AddLayer(new FileAppLayer("FileApp"));
+		m_LayerMgr.AddLayer(new ARPDlg("GUI"));
+		m_LayerMgr.ConnectLayers(" NI ( *Ethernet ( *ARP ( *IP ( *TCP ( *GUI ) ) ) ) )");
 		///////////////////
 	}
 
@@ -150,7 +150,7 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 						dstIPAddress[i] = (byte) Integer.parseInt(byte_dstIP[i]);
 					}
 					dstIPNumber = dstIPAddress;
-					this.GetUnderLayer().ARPSend(srcIPNumber, dstIPNumber);
+					((TCPLayer) m_LayerMgr.GetLayer("TCP")).ARPSend(srcIPNumber, dstIPNumber);
 				}
 			}
 			
@@ -191,9 +191,10 @@ public class ChatFileDlg extends JFrame implements BaseLayer {
 				File_send_Button.setEnabled(false);
 			}
 		}
+
 	}
 
-	public ChatFileDlg(String pName) {
+	public ARPDlg(String pName) {
 		pLayerName = pName;
 
 		setTitle("Packet_Send_Test");
