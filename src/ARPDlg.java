@@ -141,9 +141,11 @@ public class ARPDlg extends JFrame implements BaseLayer {
 
 				}
 			}
+			// basic ARP 전송 
 			if (e.getSource() == dstIpSendButton) {
 				if (dstIpSendButton.getText() == "Send") {
-					String dstIP = cacheArea.getText();
+					String dstIP = dstIpWrite.getText();
+					cacheArea.append(dstIP+"\n");
 					byte[] dstIPAddress = new byte[4];
 					String[] byte_dstIP = dstIP.split("\\.");
 					for (int i=0; i<4; i++) {
@@ -151,6 +153,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					}
 					dstIPNumber = dstIPAddress;
 					((TCPLayer) m_LayerMgr.GetLayer("TCP")).ARPSend(srcIPNumber, dstIPNumber);
+					
 				}
 			}
 			
@@ -241,6 +244,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 		arpCachePanel.add(dstIpWrite);
 		dstIpWrite.setColumns(10);// target ip address writing area
 		dstIpSendButton = new JButton("Send");
+		dstIpSendButton.addActionListener(new setAddressListener());
 		dstIpSendButton.setBounds(285,300,70,20);
 		arpCachePanel.add(dstIpSendButton);
 		
