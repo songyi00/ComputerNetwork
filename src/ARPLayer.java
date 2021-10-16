@@ -7,11 +7,35 @@ public class ARPLayer implements BaseLayer{
 	public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<BaseLayer>();
 	public ArrayList<ArrayList<String>> cacheTable = new ArrayList<ArrayList<String>>();
 	
+	private class _IP_ADDR {
+		private byte[] addr = new byte[4];
+
+		public _IP_ADDR() {
+			this.addr[0] = (byte) 0x00;
+			this.addr[1] = (byte) 0x00;
+			this.addr[2] = (byte) 0x00;
+			this.addr[3] = (byte) 0x00;
+		}
+	}
+	
+	private class _ETHERNET_ADDR {
+		private byte[] addr = new byte[6];
+
+		public _ETHERNET_ADDR() {
+			this.addr[0] = (byte) 0x00;
+			this.addr[1] = (byte) 0x00;
+			this.addr[2] = (byte) 0x00;
+			this.addr[3] = (byte) 0x00;
+			this.addr[4] = (byte) 0x00;
+			this.addr[5] = (byte) 0x00;
+		}
+	}
+	
 	private class ARP_FRAME {
-		byte[] sender_mac;
-		byte[] target_mac;
-		byte[] sender_ip;
-		byte[] target_ip;
+		_ETHERNET_ADDR sender_mac;
+		_ETHERNET_ADDR target_mac;
+		_IP_ADDR sender_ip;
+		_IP_ADDR target_ip;
 		byte[] opcode;
 		byte hardsize;
 		byte protsize;
@@ -19,16 +43,16 @@ public class ARPLayer implements BaseLayer{
 		byte[] prottype;
 		
 		ARP_FRAME(){
-			byte[] sender_mac = new byte[6];
-			byte[] target_mac = new byte[6];
-			byte[] sender_ip = new byte[4];
-			byte[] target_ip = new byte[4];
-			byte[] opcode = new byte[2];
-			byte hardsize = 1;
-			byte protsize = 1;
-			byte[] hardtype = new byte[2];
-			byte[] prottype = new byte[2];
-			opcode = intToByte2(1); //default 1
+			this.sender_mac = new _ETHERNET_ADDR();
+			this.target_mac = new _ETHERNET_ADDR();
+			this.sender_ip = new _IP_ADDR();
+			this.target_ip = new _IP_ADDR();
+			this.opcode = new byte[2];
+			this.hardsize = 1;
+			this.protsize = 1;
+			this.hardtype = new byte[2];
+			this.prottype = new byte[2];
+			this.opcode = intToByte2(1); //default 1
 		}
 	}
 	
@@ -36,17 +60,17 @@ public class ARPLayer implements BaseLayer{
 	
 	public ARPLayer(String pName) {
 		pLayerName = pName;
-		//ResetFrame();
+		ResetFrame();
 	}
 	
 	public void ResetFrame() {
 		for (int i=0; i<6; i++) {
-			frame.sender_mac[i] = (byte) 0x00;
-			frame.target_mac[i] = (byte) 0x00;
+			frame.sender_mac.addr[i] = (byte) 0x00;
+			frame.target_mac.addr[i] = (byte) 0x00;
 		}
 		for (int j=0; j<4; j++) {
-			frame.sender_ip[j] = (byte) 0x00;
-			frame.target_ip[j] = (byte) 0x00;
+			frame.sender_ip.addr[j] = (byte) 0x00;
+			frame.target_ip.addr[j] = (byte) 0x00;
 		}
 		for (int k=0; k<2; k++) {
 			frame.opcode[k] = (byte) 0x00;
@@ -76,7 +100,7 @@ public class ARPLayer implements BaseLayer{
 		
 		for(int i = 0; i < 2; i++) {
 			buf[i] = frame.hardtype[i];
-			buf[i+2] = frame.hardtype[i];
+			buf[i+2] = frame.prottype[i];
 			buf[i+6] = frame.opcode[i];
 		}
 		
@@ -84,20 +108,20 @@ public class ARPLayer implements BaseLayer{
 		buf[5] = frame.protsize;
 		
 		for(int i = 0; i < 6; i++) {
-			buf[i+8] = frame.sender_mac[i];
-			buf[i+18] = frame.target_mac[i];
+			buf[i+8] = frame.sender_mac.addr[i];
+			buf[i+18] = frame.target_mac.addr[i];
 		}	
 		for(int i=0; i < 4; i++) {
-			buf[i+14] = frame.sender_ip[i];
-			buf[i+24] = frame.target_ip[i];
+			buf[i+14] = frame.sender_ip.addr[i];
+			buf[i+24] = frame.target_ip.addr[i];
 		}
 		return buf;
 	}
 	
 	public boolean ARPSend(byte[] ip_src, byte[] ip_dst) {
 		frame.prottype = intToByte2(0x0800);
-		frame.sender_ip = ip_src;
-		frame.target_ip = ip_dst;
+		this.SetIpSrcAddress(ip_src);
+		this.SetIpDstAddress(ip_dst);
 		byte[] bytes = ObjToByte(frame, 28);
 		((EthernetLayer) this.GetUnderLayer()).ARPSend(bytes, 28);
 		return false;
@@ -137,23 +161,43 @@ public class ARPLayer implements BaseLayer{
 		return false;
 	}
 	
-	public byte[] GetArpSrcAddress() {
+	public _ETHERNET_ADDR GetArpSrcAddress() {
 		return frame.sender_mac;
 	}
 	
-	public byte[] GetArpDstAddress() {
+	public _ETHERNET_ADDR GetArpDstAddress() {
 		return frame.target_mac;
 	}
 	
 	public void SetArpSrcAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
-			frame.sender_mac[i] = input[i];
+			frame.sender_mac.addr[i] = input[i];
 		}
 	}
 	
 	public void SetArpDstAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
-			frame.sender_mac[i] = input[i];
+			frame.sender_mac.addr[i] = input[i];
+		}
+	}
+	
+	public _IP_ADDR GetIpSrcAddress() {
+		return frame.sender_ip;
+	}
+	
+	public _IP_ADDR GetIpDstAddress() {
+		return frame.target_ip;
+	}
+	
+	public void SetIpSrcAddress(byte[] input) {
+		for (int i = 0; i < 6; i++) {
+			frame.sender_ip.addr[i] = input[i];
+		}
+	}
+	
+	public void SetIpDstAddress(byte[] input) {
+		for (int i = 0; i < 6; i++) {
+			frame.sender_ip.addr[i] = input[i];
 		}
 	}
 	
