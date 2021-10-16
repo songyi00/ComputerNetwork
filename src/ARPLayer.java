@@ -214,6 +214,7 @@ public class ARPLayer implements BaseLayer {
 		
 				ARPSend(send_ip_b, target_ip_b);
 				frame.opcode = intToByte2(1);
+				
 			}
 
 			return true;

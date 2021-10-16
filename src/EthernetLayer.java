@@ -172,7 +172,7 @@ public class EthernetLayer implements BaseLayer {
 
 	public boolean Receive(byte[] input) {
 		byte[] data;
-		System.out.println("ethernet receive");;
+		System.out.println("ethernet receive");
 		int temp_type = byte2ToInt(input[12], input[13]);
 		System.out.println(temp_type);
 		if(temp_type == Integer.decode("0x2080")) { //data
@@ -204,6 +204,7 @@ public class EthernetLayer implements BaseLayer {
 		System.out.println("ethernet arp receive");
 		int temp_type = byte2ToInt(input[12], input[13]);
 		if(temp_type == Integer.decode("0x0806")) {
+			
 			if(chkAddr(input) || !IsItMyPacket(input) || (IsItBroadcast(input))) {	// 
 				data = RemoveEtherHeader(input, input.length);
 				((ARPLayer) this.GetUpperLayer(0)).ARPReceive(data);
