@@ -130,7 +130,7 @@ public class ARPLayer implements BaseLayer {
 		return false;
 	}
 
-	public boolean setCacheTable(byte[] input){//cache table setting
+	public boolean addCacheTable(byte[] input){//cache table setting
 		ArrayList<byte[]> cache = new ArrayList<byte[]>();
 		//proxycacheTable dlg에서 proxy가져오기 
 		//1. input으로 들어온 src_arp의 ip와 mac주소 가져와서 cache table에 존재하는지 확인 -> 없으면 넣기
@@ -160,27 +160,48 @@ public class ARPLayer implements BaseLayer {
 
 
 	public boolean ARPReceive(byte[] input) {
-		// 1. ARP Message다 채워져서 ethernet에 도착했을 때
-		// 송신자의 Ethernet으로 다시 돌아옴
-		// 2. ethernet header의 dst가 broadcast인 경우
-		// 처음 수신자의 ARP Layer에 도달
 		int ARP_Request = byte2ToInt(input[6], input[7]); // ARP Opcode
 
 		if (ARP_Request == 1) { // ARP Request
-			// 1. broadcast일때. 즉 처음 주소 물어볼 때.
+			// 1.  dst가 broadcast인 경우. 즉 처음 주소 물어볼 때.
 			// 각 host는 자신이 목적지인지 확인하기 전에 table에 지금 ARP 요청 보낸 host(sender)의 IP와 MAC 저장
 			// 각 host는 자신이 목적지가 맞는지 확인함. -> ARP message에 있는 target IP 보고
 			// 목적지 아니면 drop. 맞으면 ARP message에 있는 target mac에 자신의 MAC 주소 넣음
 			// ARP 응답 메시지를 seder에데 보내기 위해 ARP message에 있는 sender's와 target's swap
 			// opcode 2로 바꿈. -> 왜냐면 ARP reply위해서.
-
-			setCacheTable(input);
+			addCacheTable(input);
+			
+			_IP_ADDR ip_buf = new _IP_ADDR();
+			for(int i = 0; i < 4; i++) {	
+				ip_buf.addr[i] = input[24+i];
+			}
+			
+			if(frame.sender_ip == ip_buf) {	// 내가 목적지임
+				
+				for(int i = 0; i < 4; i++) {	// target ip 주소 바꾸기
+					frame.target_ip.addr[i] = input[14+i];
+				}
+				
+				for(int i = 0; i < 6; i++) {
+					frame.target_mac.addr[i] = input[8+i];
+				}
+				byte[] send_ip_b = new byte[4];
+				System.arraycopy(frame.sender_ip, 0, send_ip_b, 0, 4);
+				
+				byte[] target_ip_b = new byte[4];
+				System.arraycopy(frame.target_ip, 0, target_ip_b, 0, 4);
+		
+				ARPSend(send_ip_b, target_ip_b);
+				
+			}
 
 			return true;
 		} else if (ARP_Request == 2) { // ARP Reply
 			// sender의 ARP Layer가 받음.
-			// ARP messgae target's hardware보고 sender는 table 채움.
+			// ARP messgae target's mac보고 sender는 table 채움.
 			// ip, mac변수에 setting -> Dlg에서 get해서 화면에 출력
+			addCacheTable(input);
+			
 			return true;
 		}
 		return false;
