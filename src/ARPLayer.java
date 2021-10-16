@@ -93,10 +93,11 @@ public class ARPLayer implements BaseLayer{
 	
 	public byte[] ObjToByte(ARP_FRAME frame, int length) {//frame을 구성해서 byte data로 return
 		byte[] buf = new byte[28];
-//		if(byte2ToInt(frame.opcode[0], frame.opcode[1]) == 2){ //ARP응답
-//			byte[] mac_dst = frame.sender_mac;
-//			byte[] mac_src = 
-//		}
+		if(byte2ToInt(frame.opcode[0], frame.opcode[1]) == 2){ //ARP응답
+			_ETHERNET_ADDR temp = frame.sender_mac;
+			frame.target_mac = temp;
+			frame.sender_mac = temp; 
+		}
 		
 		for(int i = 0; i < 2; i++) {
 			buf[i] = frame.hardtype[i];
