@@ -156,6 +156,7 @@ public class ARPLayer implements BaseLayer{
 		else if(ARP_Request == 2) { //ARP Reply
 			// sender의 ARP Layer가 받음. 
 			// ARP messgae target's hardware보고 sender는 table 채움.
+			//ip, mac변수에 setting -> Dlg에서 get해서 화면에 출력
 			return true;
 		}
 		return false;
