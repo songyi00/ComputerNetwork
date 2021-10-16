@@ -172,20 +172,27 @@ public class EthernetLayer implements BaseLayer {
 
 	public boolean Receive(byte[] input) {
 		byte[] data;
-		int temp_type = byte2ToInt(input[12], input[13]); 
-		if(temp_type == (byte)0x2080) { //data
+		System.out.println("ethernet receive");
+		int temp_type = byte2ToInt(input[12], input[13]);
+		System.out.println(temp_type);
+		if(temp_type == Integer.decode("0x2080")) { //data
+			System.out.println("2080");
 			if(chkAddr(input) || (IsItBroadcast(input)) || !IsItMyPacket(input)) {
 				data = RemoveEtherHeader(input, input.length);
 				this.GetUpperLayer(0).Receive(data);
 				return true;
 			}
 		}
-		else if(temp_type == (byte)0x2090) { //file
+		else if(temp_type == Integer.decode("0x2090")) { //file
+			System.out.println("2090");
 			if(chkAddr(input) || (IsItBroadcast(input)) || !IsItMyPacket(input)) {
 				data = RemoveEtherHeader(input, input.length);
 				this.GetUpperLayer(1).Receive(data);
 				return true;
 			}
+		}else if(temp_type == Integer.decode("0x0806")) {
+			System.out.println("0806");
+			this.ARPReceive(input);
 		}
 		return false; 
 	
@@ -195,7 +202,7 @@ public class EthernetLayer implements BaseLayer {
 		byte[] data;
 		// type이 0x0806이면 ARP
 		int temp_type = byte2ToInt(input[12], input[13]);
-		if(temp_type == 0x0806) {
+		if(temp_type == Integer.decode("0x0806")) {
 			
 			if(chkAddr(input) || !IsItMyPacket(input) || (IsItBroadcast(input))) {	// 
 				data = RemoveEtherHeader(input, input.length);

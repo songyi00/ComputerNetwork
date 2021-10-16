@@ -8,6 +8,8 @@ public class ARPLayer implements BaseLayer {
 	public ArrayList<ArrayList<byte[]>> cacheTable = new ArrayList<ArrayList<byte[]>>();
 	public ArrayList<ArrayList<byte[]>> proxycacheTable = new ArrayList<ArrayList<byte[]>>();
 	private static LayerManager m_LayerMgr = new LayerManager();
+	public int state = 0;
+	
 	
 	private class _IP_ADDR {
 		private byte[] addr = new byte[4];
@@ -79,6 +81,9 @@ public class ARPLayer implements BaseLayer {
 			frame.hardtype[k] = (byte) 0x00;
 			frame.prottype[k] = (byte) 0x00;
 		}
+		frame.hardsize = 1;
+		frame.protsize = 1;
+		frame.opcode = intToByte2(1);
 	}
 
 	private byte[] intToByte2(int value) {
@@ -122,6 +127,7 @@ public class ARPLayer implements BaseLayer {
 	}
 
 	public boolean ARPSend(byte[] ip_src, byte[] ip_dst) {
+		System.out.println("arp send");
 		frame.prottype = intToByte2(0x0800);
 		this.SetIpSrcAddress(ip_src);
 		this.SetIpDstAddress(ip_dst);
@@ -151,10 +157,7 @@ public class ARPLayer implements BaseLayer {
 		cache.add(intToByte2(1));  // cache[2]에  Complete넣기.1이면 complete.
 
 		cacheTable.add(cache);
-		
-		// Application으로 cacheTable 보내기.
-		((ARPDlg)m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
-		
+		((ARPDlg)ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
 		return true; 
 	}
 
@@ -163,6 +166,7 @@ public class ARPLayer implements BaseLayer {
 		int ARP_Request = byte2ToInt(input[6], input[7]); // ARP Opcode
 
 		if (ARP_Request == 1) { // ARP Request
+			System.out.println("arp receive request");
 			// 1.  dst가 broadcast인 경우. 즉 처음 주소 물어볼 때.
 			// 각 host는 자신이 목적지인지 확인하기 전에 table에 지금 ARP 요청 보낸 host(sender)의 IP와 MAC 저장
 			// 각 host는 자신이 목적지가 맞는지 확인함. -> ARP message에 있는 target IP 보고
@@ -177,7 +181,8 @@ public class ARPLayer implements BaseLayer {
 			}
 			
 			if(frame.sender_ip == ip_buf) {	// 내가 목적지임
-				
+				System.out.println("arp receive request is the dst");
+
 				for(int i = 0; i < 4; i++) {	// target ip 주소 바꾸기
 					frame.target_ip.addr[i] = input[14+i];
 				}
@@ -197,6 +202,8 @@ public class ARPLayer implements BaseLayer {
 
 			return true;
 		} else if (ARP_Request == 2) { // ARP Reply
+			System.out.println("arp receive reply");
+
 			// sender의 ARP Layer가 받음.
 			// ARP messgae target's mac보고 sender는 table 채움.
 			// ip, mac변수에 setting -> Dlg에서 get해서 화면에 출력
@@ -223,7 +230,7 @@ public class ARPLayer implements BaseLayer {
 
 	public void SetArpDstAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
-			frame.sender_mac.addr[i] = input[i];
+			frame.target_mac.addr[i] = input[i];
 		}
 	}
 
@@ -236,14 +243,14 @@ public class ARPLayer implements BaseLayer {
 	}
 
 	public void SetIpSrcAddress(byte[] input) {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 4; i++) {
 			frame.sender_ip.addr[i] = input[i];
 		}
 	}
 
 	public void SetIpDstAddress(byte[] input) {
-		for (int i = 0; i < 6; i++) {
-			frame.sender_ip.addr[i] = input[i];
+		for (int i = 0; i < 4; i++) {
+			frame.target_ip.addr[i] = input[i];
 		}
 	}
 
@@ -290,5 +297,11 @@ public class ARPLayer implements BaseLayer {
 		// TODO Auto-generated method stub
 		this.SetUpperLayer(pUULayer);
 		pUULayer.SetUnderLayer(this);
+	}
+	public ArrayList<ArrayList<byte[]>> getCacheTable(){
+		return this.cacheTable;
+	}
+	public int getState() {
+		return this.state;
 	}
 }

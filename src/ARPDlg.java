@@ -33,7 +33,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 	public BaseLayer p_UnderLayer = null;
 	public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<BaseLayer>();
 
-	private static LayerManager m_LayerMgr = new LayerManager();
+	public static LayerManager m_LayerMgr = new LayerManager();
 
 	private JTextField ChattingWrite;
 	private JTextField PathWrite;
@@ -80,7 +80,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 
 	File file;
 	
-	private ArrayList<ArrayList<byte[]>> cacheTable;
+	private ArrayList<ArrayList<byte[]>> cacheTable = new ArrayList<ArrayList<byte[]>>();
 	
 	public static void main(String[] args) {
 
@@ -139,11 +139,12 @@ public class ARPDlg extends JFrame implements BaseLayer {
 						dstMacAddress[i] = (byte) Integer.parseInt(dstMac[i], 16);
 					}
 					
-					((EthernetLayer)
-					m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
-					((EthernetLayer)
-					m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(dstMacAddress);
-
+					((EthernetLayer)m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
+					((EthernetLayer)m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(dstMacAddress);
+					
+					((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetArpSrcAddress(MacAddress);
+					((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetArpDstAddress(dstMacAddress);
+					
 					((NILayer) m_LayerMgr.GetLayer("NI")).SetAdapterNumber(adapterNumber);
 
 					Setting_Button.setText("Reset");
@@ -166,7 +167,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					}
 					dstIPNumber = dstIPAddress;
 					((TCPLayer) m_LayerMgr.GetLayer("TCP")).ARPSend(srcIPNumber, dstIPNumber);
-
+					
 				}
 			}
 			// proxy ARP 전송
@@ -612,7 +613,8 @@ public class ARPDlg extends JFrame implements BaseLayer {
 		cacheArea.setText("");
 		//byte[] ipAddressByte = new byte[4];
 		//byte[] macAddressByte = new byte[6];
-		
+		System.out.println("set arp cache");
+
 		for(int i=0; i<cacheTable.size(); i++) {
 			byte[] ip_byte = cacheTable.get(i).get(0);
 			byte[] mac_byte = cacheTable.get(i).get(1);
@@ -632,7 +634,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
 			
 			cacheArea.append(ipByte1+"."+ipByte2+"."+ipByte3+"."+ipByte4);
 			cacheArea.append("  "+macByte1+"-"+macByte2+"-"+macByte3+"-"+macByte4+"-"+macByte5+"-"+macByte6);
-			
+			System.out.println(ipByte1+"."+ipByte2+"."+ipByte3+"."+ipByte4);
+			System.out.println("  "+macByte1+"-"+macByte2+"-"+macByte3+"-"+macByte4+"-"+macByte5+"-"+macByte6);
+
 			if (byte2ToInt(status_byte[0], status_byte[1])==1) {
 				cacheArea.append("  complete" + "\n");
 			}
