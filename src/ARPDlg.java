@@ -144,6 +144,8 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					
 					((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetArpSrcAddress(MacAddress);
 					((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetArpDstAddress(dstMacAddress);
+					((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetIpSrcAddress(IpAddress);
+					System.out.println("ARPDlg에서 IPAddress는? " + Byte.toUnsignedInt(IpAddress[2]) +"."+Byte.toUnsignedInt(IpAddress[3]));
 					
 					((NILayer) m_LayerMgr.GetLayer("NI")).SetAdapterNumber(adapterNumber);
 

@@ -128,6 +128,7 @@ public class ARPLayer implements BaseLayer {
 
 	public boolean ARPSend(byte[] ip_src, byte[] ip_dst) {
 		System.out.println("arp send");
+		System.out.println("arp의 src_ip는? : " + Byte.toUnsignedInt(ip_src[2]) + "." + Byte.toUnsignedInt(ip_src[3]));
 		frame.prottype = intToByte2(0x0800);
 		this.SetIpSrcAddress(ip_src);
 		this.SetIpDstAddress(ip_dst);
@@ -160,7 +161,17 @@ public class ARPLayer implements BaseLayer {
 		((ARPDlg)ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
 		return true; 
 	}
-
+	
+	public boolean IsItMine(byte[] input) {
+		for (int i = 0; i < 4; i++) {
+			if (frame.sender_ip.addr[i] == input[i])
+				continue;
+			else {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public boolean ARPReceive(byte[] input) {
 		int ARP_Request = byte2ToInt(input[6], input[7]); // ARP Opcode
@@ -175,12 +186,15 @@ public class ARPLayer implements BaseLayer {
 			// opcode 2로 바꿈. -> 왜냐면 ARP reply위해서.
 			addCacheTable(input);
 			
-			_IP_ADDR ip_buf = new _IP_ADDR();
+			byte[] ip_buf = new byte[4];
 			for(int i = 0; i < 4; i++) {	
-				ip_buf.addr[i] = input[24+i];
+				ip_buf[i] = input[24+i];
 			}
 			
-			if(frame.sender_ip == ip_buf) {	// 내가 목적지임
+			System.out.println("난 ip_buf야: " + Byte.toUnsignedInt(ip_buf[2])+ "." + Byte.toUnsignedInt(ip_buf[3]));
+			System.out.println("내 src ip는? " + Byte.toUnsignedInt(frame.sender_ip.addr[2]) + "." + Byte.toUnsignedInt(frame.sender_ip.addr[3]));
+			
+			if(IsItMine(ip_buf)) {	// 내가 목적지임
 				System.out.println("arp receive request is the dst");
 
 				for(int i = 0; i < 4; i++) {	// target ip 주소 바꾸기
@@ -191,13 +205,15 @@ public class ARPLayer implements BaseLayer {
 					frame.target_mac.addr[i] = input[8+i];
 				}
 				byte[] send_ip_b = new byte[4];
-				System.arraycopy(frame.sender_ip, 0, send_ip_b, 0, 4);
+				System.arraycopy(input, 24, send_ip_b, 0, 4);
 				
 				byte[] target_ip_b = new byte[4];
-				System.arraycopy(frame.target_ip, 0, target_ip_b, 0, 4);
+				System.arraycopy(input, 14, target_ip_b, 0, 4);
+				
+				frame.opcode = intToByte2(2);
 		
 				ARPSend(send_ip_b, target_ip_b);
-				
+				frame.opcode = intToByte2(1);
 			}
 
 			return true;

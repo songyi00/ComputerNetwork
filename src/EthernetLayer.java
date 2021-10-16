@@ -79,7 +79,7 @@ public class EthernetLayer implements BaseLayer {
 		}
 	}
 
-	public byte[] ObjToByte(_ETHERNET_HEADER Header, byte[] input, int length) {//data�뿉 �뿤�뜑 遺숈뿬二쇨린
+	public byte[] ObjToByte(_ETHERNET_HEADER Header, byte[] input, int length) {//data占쎈� 占쎈엘占쎈�� �븐��肉т��⑤┛
 		byte[] buf = new byte[length + 14];
 		for(int i = 0; i < 6; i++) {
 			buf[i] = Header.enet_dstaddr.addr[i];
@@ -121,7 +121,7 @@ public class EthernetLayer implements BaseLayer {
 		return true;
 	}
 	
-	// input 은 ARP Message
+	// input �� ARP Message
 	public boolean ARPSend(byte[] input, int length) {
 		m_sHeader.enet_type = intToByte2(0x0806);
 		m_sHeader.enet_data = input;
@@ -137,7 +137,7 @@ public class EthernetLayer implements BaseLayer {
 		return data;
 	}
 	
-	// 내가 보냈던 packet이 다시 나에게 온 경우인지
+	// �닿� 蹂대���� packet�� �ㅼ�� ����寃� �� 寃쎌�곗�몄�
 	public boolean IsItMyPacket(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			if (m_sHeader.enet_srcaddr.addr[i] == input[6 + i])
@@ -148,7 +148,7 @@ public class EthernetLayer implements BaseLayer {
 		return true;
 	}
 	
-	// 목적지가 나인지
+	// 紐⑹��吏�媛� ���몄�
 	public boolean IsItMine(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			if (m_sHeader.enet_srcaddr.addr[i] == input[i])
@@ -172,7 +172,7 @@ public class EthernetLayer implements BaseLayer {
 
 	public boolean Receive(byte[] input) {
 		byte[] data;
-		System.out.println("ethernet receive");
+		System.out.println("ethernet receive");;
 		int temp_type = byte2ToInt(input[12], input[13]);
 		System.out.println(temp_type);
 		if(temp_type == Integer.decode("0x2080")) { //data
@@ -200,10 +200,10 @@ public class EthernetLayer implements BaseLayer {
 	
 	public boolean ARPReceive(byte[] input) {
 		byte[] data;
-		// type이 0x0806이면 ARP
+		// type�� 0x0806�대㈃ ARP
+		System.out.println("ethernet arp receive");
 		int temp_type = byte2ToInt(input[12], input[13]);
 		if(temp_type == Integer.decode("0x0806")) {
-			
 			if(chkAddr(input) || !IsItMyPacket(input) || (IsItBroadcast(input))) {	// 
 				data = RemoveEtherHeader(input, input.length);
 				((ARPLayer) this.GetUpperLayer(0)).ARPReceive(data);
@@ -213,7 +213,7 @@ public class EthernetLayer implements BaseLayer {
 		return false;
 	}
 	
-	// 목적지가 나인지(ethernet header의 dst주소가 나인지 확인) 
+	// 紐⑹��吏�媛� ���몄�(ethernet header�� dst二쇱��媛� ���몄� ����) 
 	private boolean chkAddr(byte[] input) {
 		byte[] temp = m_sHeader.enet_srcaddr.addr;
 		for(int i = 0; i< 6; i++)
