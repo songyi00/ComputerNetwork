@@ -146,12 +146,12 @@ public class ARPDlg extends JFrame implements BaseLayer {
 				if (dstIpSendButton.getText() == "Send") {
 					String dstIP = dstIpWrite.getText();
 					cacheArea.append(dstIP);
-					cacheArea.append("  ???");
+					cacheArea.append("  ??-??-??-??-??-??");
 					cacheArea.append("  sending.."+"\n");
 					byte[] dstIPAddress = new byte[4];
 					String[] byte_dstIP = dstIP.split("\\.");
 					for (int i=0; i<4; i++) {
-						dstIPAddress[i] = (byte) Integer.parseInt(byte_dstIP[i]);
+						dstIPAddress[i] = (byte) Integer.parseInt(byte_dstIP[i],10);
 					}
 					dstIPNumber = dstIPAddress;
 					((TCPLayer) m_LayerMgr.GetLayer("TCP")).ARPSend(srcIPNumber, dstIPNumber);
