@@ -77,13 +77,13 @@ public class IPLayer implements BaseLayer {
 	}
 	
 	public void SetIpDstAddress(byte[] input) {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 4; i++) {
 			m_sHeader.ip_dst.addr[i] = input[i];
 		}
 	}
 
 	public void SetIpSrcAddress(byte[] input) {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 4; i++) {
 			m_sHeader.ip_src.addr[i] = input[i];
 		}
 	}
