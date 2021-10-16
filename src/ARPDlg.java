@@ -79,7 +79,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
 	JProgressBar progressBar;
 
 	File file;
-
+	
+	private ArrayList<ArrayList<byte[]>> cacheTable;
+	
 	public static void main(String[] args) {
 
 		////////////////
@@ -169,9 +171,36 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					proxyArpArea.append("Interface0");
 					proxyArpArea.append("  " + proxyIP);
 					proxyArpArea.append("  " + proxyMac + "\n");
+					
+					byte[] proxyIpByte = new byte[4];
+					byte[] proxyMacByte = new byte[6];
+					String[] ip_split = proxyIP.split("\\.");
+					for (int i = 0; i < 4; i++) {
+						proxyIpByte[i] = (byte) Integer.parseInt(ip_split[i], 10);
+					}
+					
+					String[] mac_split = proxyIP.split("\\.");
+					for (int i = 0; i < 6; i++) {
+						proxyMacByte[i] = (byte) Integer.parseInt(mac_split[i], 16);
+					}
+					
+				}
+				else if(proxyAddButton.getText() == "Delete") {
+					//Delete 구현 
 				}
 			}
-
+			
+			//GARP 전송 
+			if (e.getSource() == GArpSendButton) {
+				String garp = GArpAddressWrite.getText();
+				byte[] garpByte = new byte[6];
+				
+				String[] garp_split = garp.split("\\.");
+				for (int i = 0; i < 6; i++) {
+					garpByte[i] = (byte) Integer.parseInt(garp_split[i], 16);
+				}
+			}
+			//Chatting send 
 			if (e.getSource() == Chat_send_Button) {
 				if (Setting_Button.getText() == "Reset") {
 					for (int i = 0; i < 10; i++) {
@@ -204,6 +233,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 				}
 
 			}
+			//File send 
 			if (e.getSource() == File_send_Button) {
 				((FileAppLayer) m_LayerMgr.GetLayer("FileApp")).setAndStartSendFile();
 				File_send_Button.setEnabled(false);
@@ -338,7 +368,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
 		gratuitousPanel.add(GArpAddress);
 		gratuitousPanel.add(GArpAddressWrite);
 		gratuitousPanel.add(GArpSendButton);
-
+		
+		GArpSendButton.addActionListener(new setAddressListener());
+		
 		// setting panel
 		JPanel settingPanel = new JPanel();
 		settingPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "setting",
@@ -565,4 +597,47 @@ public class ARPDlg extends JFrame implements BaseLayer {
 		pUULayer.SetUnderLayer(this);
 
 	}
+
+	// cache table setting
+	// ip , ethernet , status(0,1)
+	public void setArpCache(ArrayList<ArrayList<byte[]>> cacheTable) {
+		this.cacheTable = cacheTable;
+		cacheArea.setText("");
+		//byte[] ipAddressByte = new byte[4];
+		//byte[] macAddressByte = new byte[6];
+		
+		for(int i=0; i<cacheTable.size(); i++) {
+			byte[] ip_byte = cacheTable.get(i).get(0);
+			byte[] mac_byte = cacheTable.get(i).get(1);
+			byte[] status_byte = cacheTable.get(i).get(2);
+			
+			String ipByte1 = Integer.toString(Byte.toUnsignedInt(ip_byte[0]));
+			String ipByte2 = Integer.toString(Byte.toUnsignedInt(ip_byte[1]));
+			String ipByte3 = Integer.toString(Byte.toUnsignedInt(ip_byte[2]));
+			String ipByte4 = Integer.toString(Byte.toUnsignedInt(ip_byte[3]));
+			
+			String macByte1 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[0]));
+			String macByte2 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[1]));
+			String macByte3 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[2]));
+			String macByte4 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[3]));
+			String macByte5 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[4]));
+			String macByte6 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[5]));
+			
+			cacheArea.append(ipByte1+"."+ipByte2+"."+ipByte3+"."+ipByte4);
+			cacheArea.append("  "+macByte1+"-"+macByte2+"-"+macByte3+"-"+macByte4+"-"+macByte5+"-"+macByte6);
+			
+			if (byte2ToInt(status_byte[0], status_byte[1])==1) {
+				cacheArea.append("  complete" + "\n");
+			}
+			else {
+				cacheArea.append("  Incomplete" + "\n");
+			}
+			
+		}
+		
+	}
+	
+	private int byte2ToInt(byte value1, byte value2) {
+        return (int)((value1 << 8) | (value2));
+    }
 }
