@@ -112,9 +112,6 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					byte[] MacAddress = new byte[6];
 					byte[] IpAddress = new byte[4];
 					
-					srcIPNumber = IpAddress;
-					srcMacNumber = MacAddress;
-					
 					String srcMac = srcMacAddress.getText();
 					String srcIP = srcIpAddress.getText();
 					System.out.println("srcMacAddress : "+ srcMac);
@@ -129,6 +126,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					for (int i = 0; i < 4; i++) {
 						IpAddress[i] = (byte) Integer.parseInt(byte_srcIp[i]);
 					}
+					
+					srcIPNumber = IpAddress;
+					srcMacNumber = MacAddress;
 					
 					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
 					//((EthernetLayer) m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(IpAddress);
@@ -145,7 +145,9 @@ public class ARPDlg extends JFrame implements BaseLayer {
 			if (e.getSource() == dstIpSendButton) {
 				if (dstIpSendButton.getText() == "Send") {
 					String dstIP = dstIpWrite.getText();
-					cacheArea.append(dstIP+"\n");
+					cacheArea.append(dstIP);
+					cacheArea.append("  ???");
+					cacheArea.append("  sending.."+"\n");
 					byte[] dstIPAddress = new byte[4];
 					String[] byte_dstIP = dstIP.split("\\.");
 					for (int i=0; i<4; i++) {
