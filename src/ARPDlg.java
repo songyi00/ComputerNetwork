@@ -131,11 +131,18 @@ public class ARPDlg extends JFrame implements BaseLayer {
 
 					srcIPNumber = IpAddress;
 					srcMacNumber = MacAddress;
-
-					// ((EthernetLayer)
-					// m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
-					// ((EthernetLayer)
-					// m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(IpAddress);
+					
+					String[] dstMac = {"ff","ff","ff","ff","ff","ff"};
+					byte[] dstMacAddress = new byte[6];
+					
+					for (int i = 0; i < 6; i++) {
+						dstMacAddress[i] = (byte) Integer.parseInt(dstMac[i], 16);
+					}
+					
+					((EthernetLayer)
+					m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(MacAddress);
+					((EthernetLayer)
+					m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(dstMacAddress);
 
 					((NILayer) m_LayerMgr.GetLayer("NI")).SetAdapterNumber(adapterNumber);
 
