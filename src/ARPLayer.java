@@ -1,12 +1,13 @@
 import java.util.ArrayList;
 
-public class ARPLayer implements BaseLayer{
+public class ARPLayer implements BaseLayer {
 	public int nUpperLayerCount = 0;
 	public String pLayerName = null;
 	public BaseLayer p_UnderLayer = null;
 	public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<BaseLayer>();
 	public ArrayList<ArrayList<byte[]>> cacheTable = new ArrayList<ArrayList<byte[]>>();
 	public ArrayList<ArrayList<byte[]>> proxycacheTable = new ArrayList<ArrayList<byte[]>>();
+	private static LayerManager m_LayerMgr = new LayerManager();
 	
 	private class _IP_ADDR {
 		private byte[] addr = new byte[4];
@@ -18,7 +19,7 @@ public class ARPLayer implements BaseLayer{
 			this.addr[3] = (byte) 0x00;
 		}
 	}
-	
+
 	private class _ETHERNET_ADDR {
 		private byte[] addr = new byte[6];
 
@@ -31,7 +32,7 @@ public class ARPLayer implements BaseLayer{
 			this.addr[5] = (byte) 0x00;
 		}
 	}
-	
+
 	private class ARP_FRAME {
 		_ETHERNET_ADDR sender_mac;
 		_ETHERNET_ADDR target_mac;
@@ -42,8 +43,8 @@ public class ARPLayer implements BaseLayer{
 		byte protsize;
 		byte[] hardtype;
 		byte[] prottype;
-		
-		ARP_FRAME(){
+
+		ARP_FRAME() {
 			this.sender_mac = new _ETHERNET_ADDR();
 			this.target_mac = new _ETHERNET_ADDR();
 			this.sender_ip = new _IP_ADDR();
@@ -53,73 +54,73 @@ public class ARPLayer implements BaseLayer{
 			this.protsize = 1;
 			this.hardtype = new byte[2];
 			this.prottype = new byte[2];
-			this.opcode = intToByte2(1); //default 1
+			this.opcode = intToByte2(1); // default 1
 		}
 	}
-	
+
 	ARP_FRAME frame = new ARP_FRAME();
-	
+
 	public ARPLayer(String pName) {
 		pLayerName = pName;
 		ResetFrame();
 	}
-	
+
 	public void ResetFrame() {
-		for (int i=0; i<6; i++) {
+		for (int i = 0; i < 6; i++) {
 			frame.sender_mac.addr[i] = (byte) 0x00;
 			frame.target_mac.addr[i] = (byte) 0x00;
 		}
-		for (int j=0; j<4; j++) {
+		for (int j = 0; j < 4; j++) {
 			frame.sender_ip.addr[j] = (byte) 0x00;
 			frame.target_ip.addr[j] = (byte) 0x00;
 		}
-		for (int k=0; k<2; k++) {
+		for (int k = 0; k < 2; k++) {
 			frame.opcode[k] = (byte) 0x00;
 			frame.hardtype[k] = (byte) 0x00;
 			frame.prottype[k] = (byte) 0x00;
 		}
 	}
-	
-	private byte[] intToByte2(int value) {
-        byte[] temp = new byte[2];
-        temp[0] |= (byte) ((value & 0xFF00) >> 8);
-        temp[1] |= (byte) (value & 0xFF);
 
-        return temp;
-    }
-	
+	private byte[] intToByte2(int value) {
+		byte[] temp = new byte[2];
+		temp[0] |= (byte) ((value & 0xFF00) >> 8);
+		temp[1] |= (byte) (value & 0xFF);
+
+		return temp;
+	}
+
 	private int byte2ToInt(byte value1, byte value2) {
-        return (int)((value1 << 8) | (value2));
-    }
-	
-	public byte[] ObjToByte(ARP_FRAME frame, int length) {//frame을 구성해서 byte data로 return
+		return (int) ((value1 << 8) | (value2));
+	}
+
+	public byte[] ObjToByte(ARP_FRAME frame, int length) {// frame을 구성해서 byte data로 return
 		byte[] buf = new byte[28];
-		if(byte2ToInt(frame.opcode[0], frame.opcode[1]) == 2){ //ARP응답
+		if (byte2ToInt(frame.opcode[0], frame.opcode[1]) == 2) { // ARP응답
 			_ETHERNET_ADDR temp = frame.sender_mac;
 			frame.target_mac = temp;
-			frame.sender_mac = temp; 
+			frame.sender_mac = temp;
 		}
-		
-		for(int i = 0; i < 2; i++) {
+
+		for (int i = 0; i < 2; i++) {
 			buf[i] = frame.hardtype[i];
-			buf[i+2] = frame.prottype[i];
-			buf[i+6] = frame.opcode[i];
+			buf[i + 2] = frame.prottype[i];
+			buf[i + 6] = frame.opcode[i];
 		}
-		
+
 		buf[4] = frame.hardsize;
 		buf[5] = frame.protsize;
-		
-		for(int i = 0; i < 6; i++) {
-			buf[i+8] = frame.sender_mac.addr[i];
-			buf[i+18] = frame.target_mac.addr[i];
-		}	
-		for(int i=0; i < 4; i++) {
-			buf[i+14] = frame.sender_ip.addr[i];
-			buf[i+24] = frame.target_ip.addr[i];
+
+		for (int i = 0; i < 6; i++) {
+			buf[i + 8] = frame.sender_mac.addr[i];
+			buf[i + 18] = frame.target_mac.addr[i];
+		}
+		for (int i = 0; i < 4; i++) {
+			buf[i + 14] = frame.sender_ip.addr[i];
+			buf[i + 24] = frame.target_ip.addr[i];
 		}
 		return buf;
 	}
-	
+
 	public boolean ARPSend(byte[] ip_src, byte[] ip_dst) {
 		frame.prottype = intToByte2(0x0800);
 		this.SetIpSrcAddress(ip_src);
@@ -128,94 +129,103 @@ public class ARPLayer implements BaseLayer{
 		((EthernetLayer) this.GetUnderLayer()).ARPSend(bytes, 28);
 		return false;
 	}
-	
+
 	public boolean setCacheTable(byte[] input){//cache table setting
 		ArrayList<byte[]> cache = new ArrayList<byte[]>();
 		//proxycacheTable dlg에서 proxy가져오기 
 		//1. input으로 들어온 src_arp의 ip와 mac주소 가져와서 cache table에 존재하는지 확인 -> 없으면 넣기
 		//2. 이미 존재하는 ip라면 table의 mac주소와 target_arp를 확인해서 틀리면 바꿔버려 -> Garp
 		
-		for(int i=0; i<4; i++) {
-			
+		byte[] ip_buf = new byte[4];
+		for(int i=0; i<4; i++) {	
+			ip_buf[i] = input[14+i];
 		}
-		for(int i=0; i<6; i++) {
-			
+		cache.add(ip_buf);	// cache[0]에 ip 주소 넣기
+		
+		byte[] mac_buf = new byte[6];
+		for(int i=0; i<6; i++) {	// 
+			mac_buf[i] = input[i+8];
 		}
-//		if() {
-//			
-//		}
+		cache.add(mac_buf);	// cache[1]에 mac 주소 넣기
+		
+		cache.add(intToByte2(1));  // cache[2]에  Complete넣기.1이면 complete.
+
 		cacheTable.add(cache);
+		
+		// Application으로 cacheTable 보내기.
+		((ARPDlg)m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
+		
 		return true; 
 	}
-	
+
+
 	public boolean ARPReceive(byte[] input) {
 		// 1. ARP Message다 채워져서 ethernet에 도착했을 때
 		// 송신자의 Ethernet으로 다시 돌아옴
 		// 2. ethernet header의 dst가 broadcast인 경우
 		// 처음 수신자의 ARP Layer에 도달
-		int ARP_Request = byte2ToInt(input[6], input[7]); //ARP Opcode
-		
-		if(ARP_Request == 1) { //ARP Request
+		int ARP_Request = byte2ToInt(input[6], input[7]); // ARP Opcode
+
+		if (ARP_Request == 1) { // ARP Request
 			// 1. broadcast일때. 즉 처음 주소 물어볼 때.
 			// 각 host는 자신이 목적지인지 확인하기 전에 table에 지금 ARP 요청 보낸 host(sender)의 IP와 MAC 저장
 			// 각 host는 자신이 목적지가 맞는지 확인함. -> ARP message에 있는 target IP 보고
-			// 목적지 아니면 drop. 맞으면 ARP message에 있는 target mac에 자신의 MAC 주소 넣음 
+			// 목적지 아니면 drop. 맞으면 ARP message에 있는 target mac에 자신의 MAC 주소 넣음
 			// ARP 응답 메시지를 seder에데 보내기 위해 ARP message에 있는 sender's와 target's swap
 			// opcode 2로 바꿈. -> 왜냐면 ARP reply위해서.
-			
+
 			setCacheTable(input);
-			
+
 			return true;
-		}
-		else if(ARP_Request == 2) { //ARP Reply
-			// sender의 ARP Layer가 받음. 
+		} else if (ARP_Request == 2) { // ARP Reply
+			// sender의 ARP Layer가 받음.
 			// ARP messgae target's hardware보고 sender는 table 채움.
-			//ip, mac변수에 setting -> Dlg에서 get해서 화면에 출력
+			// ip, mac변수에 setting -> Dlg에서 get해서 화면에 출력
 			return true;
 		}
 		return false;
 	}
-	
+
 	public _ETHERNET_ADDR GetArpSrcAddress() {
 		return frame.sender_mac;
 	}
-	
+
 	public _ETHERNET_ADDR GetArpDstAddress() {
 		return frame.target_mac;
 	}
-	
+
 	public void SetArpSrcAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			frame.sender_mac.addr[i] = input[i];
 		}
 	}
-	
+
 	public void SetArpDstAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			frame.sender_mac.addr[i] = input[i];
 		}
 	}
-	
+
 	public _IP_ADDR GetIpSrcAddress() {
 		return frame.sender_ip;
 	}
-	
+
 	public _IP_ADDR GetIpDstAddress() {
 		return frame.target_ip;
 	}
-	
+
 	public void SetIpSrcAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			frame.sender_ip.addr[i] = input[i];
 		}
 	}
-	
+
 	public void SetIpDstAddress(byte[] input) {
 		for (int i = 0; i < 6; i++) {
 			frame.sender_ip.addr[i] = input[i];
 		}
 	}
-	
+
 	@Override
 	public String GetLayerName() {
 		// TODO Auto-generated method stub
