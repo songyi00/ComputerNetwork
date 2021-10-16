@@ -103,7 +103,7 @@ public class ARPLayer implements BaseLayer{
 		return false;
 	}
 	
-	public boolean setCacheTable(byte[] input){
+	public boolean setCacheTable(byte[] input){//cache table setting
 		ArrayList<String> cache = new ArrayList<String>();
 		
 		cacheTable.add(cache);
@@ -115,14 +115,23 @@ public class ARPLayer implements BaseLayer{
 		// 송신자의 Ethernet으로 다시 돌아옴
 		// 2. ethernet header의 dst가 broadcast인 경우
 		// 처음 수신자의 ARP Layer에 도달
-		int protocol_type; //Protocol type
-		int ARP_Request = 1 ; //ARP Request Opcode
+		int ARP_Request = byte2ToInt(input[6], input[7]); //ARP Opcode
 		
-		if(ARP_Request == 1) { //ARP요청
+		if(ARP_Request == 1) { //ARP Request
+			// 1. broadcast일때. 즉 처음 주소 물어볼 때.
+			// 각 host는 자신이 목적지인지 확인하기 전에 table에 지금 ARP 요청 보낸 host(sender)의 IP와 MAC 저장
+			// 각 host는 자신이 목적지가 맞는지 확인함. -> ARP message에 있는 target IP 보고
+			// 목적지 아니면 drop. 맞으면 ARP message에 있는 target mac에 자신의 MAC 주소 넣음 
+			// ARP 응답 메시지를 seder에데 보내기 위해 ARP message에 있는 sender's와 target's swap
+			// opcode 2로 바꿈. -> 왜냐면 ARP reply위해서.
+			
+			setCacheTable(input);
 			
 			return true;
 		}
-		else if(ARP_Request == 2) { //MAC주소 받아온 ARP
+		else if(ARP_Request == 2) { //ARP Reply
+			// sender의 ARP Layer가 받음. 
+			// ARP messgae target's hardware보고 sender는 table 채움.
 			return true;
 		}
 		return false;
