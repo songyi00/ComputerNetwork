@@ -111,6 +111,10 @@ public class ARPLayer implements BaseLayer{
 	}
 	
 	public boolean ARPReceive(byte[] input) {
+		// 1. ARP Message다 채워져서 ethernet에 도착했을 때
+		// 송신자의 Ethernet으로 다시 돌아옴
+		// 2. ethernet header의 dst가 broadcast인 경우
+		// 처음 수신자의 ARP Layer에 도달
 		int protocol_type; //Protocol type
 		int ARP_Request = 1 ; //ARP Request Opcode
 		
