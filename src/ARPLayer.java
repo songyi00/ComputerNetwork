@@ -5,7 +5,8 @@ public class ARPLayer implements BaseLayer{
 	public String pLayerName = null;
 	public BaseLayer p_UnderLayer = null;
 	public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<BaseLayer>();
-	public ArrayList<ArrayList<String>> cacheTable = new ArrayList<ArrayList<String>>();
+	public ArrayList<ArrayList<byte[]>> cacheTable = new ArrayList<ArrayList<byte[]>>();
+	public ArrayList<ArrayList<byte[]>> proxycacheTable = new ArrayList<ArrayList<byte[]>>();
 	
 	private class _IP_ADDR {
 		private byte[] addr = new byte[4];
@@ -129,8 +130,20 @@ public class ARPLayer implements BaseLayer{
 	}
 	
 	public boolean setCacheTable(byte[] input){//cache table setting
-		ArrayList<String> cache = new ArrayList<String>();
+		ArrayList<byte[]> cache = new ArrayList<byte[]>();
+		//proxycacheTable dlg에서 proxy가져오기 
+		//1. input으로 들어온 src_arp의 ip와 mac주소 가져와서 cache table에 존재하는지 확인 -> 없으면 넣기
+		//2. 이미 존재하는 ip라면 table의 mac주소와 target_arp를 확인해서 틀리면 바꿔버려 -> Garp
 		
+		for(int i=0; i<4; i++) {
+			
+		}
+		for(int i=0; i<6; i++) {
+			
+		}
+//		if() {
+//			
+//		}
 		cacheTable.add(cache);
 		return true; 
 	}
