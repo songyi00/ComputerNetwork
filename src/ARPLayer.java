@@ -138,29 +138,42 @@ public class ARPLayer implements BaseLayer {
 	}
 
 	public boolean addCacheTable(byte[] input){//cache table setting
-		ArrayList<byte[]> cache = new ArrayList<byte[]>();
-		//proxycacheTable dlg에서 proxy가져오기 
-		//1. input으로 들어온 src_arp의 ip와 mac주소 가져와서 cache table에 존재하는지 확인 -> 없으면 넣기
-		//2. 이미 존재하는 ip라면 table의 mac주소와 target_arp를 확인해서 틀리면 바꿔버려 -> Garp
-		
-		byte[] ip_buf = new byte[4];
-		for(int i=0; i<4; i++) {	
-			ip_buf[i] = input[14+i];
-		}
-		cache.add(ip_buf);	// cache[0]에 ip 주소 넣기
-		
-		byte[] mac_buf = new byte[6];
-		for(int i=0; i<6; i++) {	// 
-			mac_buf[i] = input[i+8];
-		}
-		cache.add(mac_buf);	// cache[1]에 mac 주소 넣기
-		
-		cache.add(intToByte2(1));  // cache[2]에  Complete넣기.1이면 complete.
-
-		cacheTable.add(cache);
-		((ARPDlg)ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
-		return true; 
-	}
+	      ArrayList<byte[]> cache = new ArrayList<byte[]>();
+	      //proxycacheTable dlg에서 proxy가져오기 
+	      //1. input으로 들어온 src_arp의 ip와 mac주소 가져와서 cache table에 존재하는지 확인 -> 없으면 넣기
+	      //2. 이미 존재하는 ip라면 table의 mac주소와 target_arp를 확인해서 틀리면 바꿔버려 -> Garp
+	      
+	      byte[] ip_buf = new byte[4];
+	      for(int i=0; i<4; i++) {   
+	         ip_buf[i] = input[14+i]; //input의 ip주소 buffer 임시저장
+	      }
+	      
+	      byte[] mac_buf = new byte[6];
+	      for(int i=0; i<6; i++) {   
+	         mac_buf[i] = input[i+8]; //input의 mac주소 buffer 임시저장
+	      }
+	      
+	      boolean hasIP = false;
+	      for(int i=0; i<cacheTable.size(); i++) {
+	         if(java.util.Arrays.equals(ip_buf, cacheTable.get(i).get(0))) { //cacheTable에 ip주소가 존재
+	            hasIP = true;
+	            if(!java.util.Arrays.equals(mac_buf, cacheTable.get(i).get(1))) { //cacheTable에 저장된 mac주소가 sender_mac과 다름
+	               //garp
+	               cacheTable.get(i).set(1, mac_buf);
+	            }
+	            break;
+	         }
+	      }
+	      
+	      if(hasIP == false) {//cacheTable에 ip주소가 존재하지 않은 경우
+	         cache.add(ip_buf);   // cache[0]에 ip 주소 넣기
+	         cache.add(mac_buf);   // cache[1]에 mac 주소 넣기
+	         cache.add(intToByte2(1));  // cache[2]에  Complete넣기.1이면 complete.
+	         cacheTable.add(cache);
+	      }
+	      ((ARPDlg)ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
+	      return true; 
+	   }
 	
 	// proxy Table에 채우는 함수
 	public boolean addProxyTable(byte[] interNum, byte[] proxy_ip, byte[] proxy_mac) {
@@ -229,13 +242,8 @@ public class ARPLayer implements BaseLayer {
 				frame.opcode = intToByte2(1);
 				
 			}else { // 내가 목적지가 아닌 경우
-				// GARP 확인
-				if() {	// sender의 ip == dst의 ip
-				
-					
-				}
 				// proxy ARP
-				else { // sender의 ip != dst의 ip
+				if() { // sender의 ip != dst의 ip
 				// 자신의 proxy table 확인
 				
 				// 만약 proxy table에 target's mac 주소 있으면 target's mac 주소 채움
