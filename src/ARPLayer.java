@@ -162,6 +162,19 @@ public class ARPLayer implements BaseLayer {
 		return true; 
 	}
 	
+	// proxy Table에 채우는 함수
+	public boolean addProxyTable(byte[] interNum, byte[] proxy_ip, byte[] proxy_mac) {
+		ArrayList<byte[]> proxy = new ArrayList<byte[]>();
+		
+		proxy.add(interNum);	// proxy[0]에는 interface number 넣기
+		proxy.add(proxy_ip);	// proxy[1]에는 ip 주소 넣기
+		proxy.add(proxy_mac);	// proxy[2]에는 mac 주소 넣기
+		
+		proxycacheTable.add(proxy);
+		
+		return true;
+	}
+	
 	public boolean IsItMine(byte[] input) {
 		for (int i = 0; i < 4; i++) {
 			if (frame.sender_ip.addr[i] == input[i])
@@ -224,8 +237,14 @@ public class ARPLayer implements BaseLayer {
 				// proxy ARP
 				else { // sender의 ip != dst의 ip
 				// 자신의 proxy table 확인
+				
 				// 만약 proxy table에 target's mac 주소 있으면 target's mac 주소 채움
+				// proxy table에 있으면 Dlg로 table 보내주기.
+				
 				// sender's와 target's 위치 swap.
+				
+				// opcode 2로 변경
+				
 				}
 			}
 
