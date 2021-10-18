@@ -6,11 +6,10 @@ public class ARPLayer implements BaseLayer {
 	public BaseLayer p_UnderLayer = null;
 	public ArrayList<BaseLayer> p_aUpperLayer = new ArrayList<BaseLayer>();
 	public ArrayList<ArrayList<byte[]>> cacheTable = new ArrayList<ArrayList<byte[]>>();
-	public ArrayList<ArrayList<byte[]>> proxycacheTable = new ArrayList<ArrayList<byte[]>>();
+	public ArrayList<ArrayList<byte[]>> proxyCacheTable = new ArrayList<ArrayList<byte[]>>();
 	private static LayerManager m_LayerMgr = new LayerManager();
 	public int state = 0;
-	
-	
+
 	private class _IP_ADDR {
 		private byte[] addr = new byte[4];
 
@@ -174,20 +173,20 @@ public class ARPLayer implements BaseLayer {
 	      ((ARPDlg)ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
 	      return true; 
 	   }
-	
+
 	// proxy Table에 채우는 함수
 	public boolean addProxyTable(byte[] interNum, byte[] proxy_ip, byte[] proxy_mac) {
 		ArrayList<byte[]> proxy = new ArrayList<byte[]>();
-		
-		proxy.add(interNum);	// proxy[0]에는 interface number 넣기
-		proxy.add(proxy_ip);	// proxy[1]에는 ip 주소 넣기
-		proxy.add(proxy_mac);	// proxy[2]에는 mac 주소 넣기
-		
-		proxycacheTable.add(proxy);
-		
+
+		proxy.add(interNum); // proxy[0]에는 interface number 넣기
+		proxy.add(proxy_ip); // proxy[1]에는 ip 주소 넣기
+		proxy.add(proxy_mac); // proxy[2]에는 mac 주소 넣기
+
+		proxyCacheTable.add(proxy);
+
 		return true;
 	}
-	
+
 	public boolean IsItMine(byte[] input) {
 		for (int i = 0; i < 4; i++) {
 			if (frame.sender_ip.addr[i] == input[i])
@@ -197,6 +196,25 @@ public class ARPLayer implements BaseLayer {
 			}
 		}
 		return true;
+	}
+
+	// proxy table의 ip와 dst의 ip와 같은지 확인
+	public boolean ProxyCheck(byte[] dst_ip) {
+		for (int i = 0; i < proxyCacheTable.size(); i++) {
+			boolean flag = true;
+			ArrayList<byte[]> proxy = proxyCacheTable.get(i);
+			for (int j = 0; j < 4; j++) {
+				if (proxy.get(1)[j] == dst_ip[i]) {
+					continue;
+				} else {
+					flag = false;
+				}
+			}
+			if (flag == true) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean ARPReceive(byte[] input) {
@@ -220,6 +238,12 @@ public class ARPLayer implements BaseLayer {
 			System.out.println("난 ip_buf야: " + Byte.toUnsignedInt(ip_buf[2])+ "." + Byte.toUnsignedInt(ip_buf[3]));
 			System.out.println("내 src ip는? " + Byte.toUnsignedInt(frame.sender_ip.addr[2]) + "." + Byte.toUnsignedInt(frame.sender_ip.addr[3]));
 			
+			byte[] send_ip_b = new byte[4];
+			System.arraycopy(input, 24, send_ip_b, 0, 4);
+			
+			byte[] target_ip_b = new byte[4];
+			System.arraycopy(input, 14, target_ip_b, 0, 4);
+			
 			if(IsItMine(ip_buf)) {	// 내가 목적지임
 				System.out.println("arp receive request is the dst");
 
@@ -230,11 +254,6 @@ public class ARPLayer implements BaseLayer {
 				for(int i = 0; i < 6; i++) {
 					frame.target_mac.addr[i] = input[8+i];
 				}
-				byte[] send_ip_b = new byte[4];
-				System.arraycopy(input, 24, send_ip_b, 0, 4);
-				
-				byte[] target_ip_b = new byte[4];
-				System.arraycopy(input, 14, target_ip_b, 0, 4);
 				
 				frame.opcode = intToByte2(2);
 		
@@ -243,16 +262,30 @@ public class ARPLayer implements BaseLayer {
 				
 			}else { // 내가 목적지가 아닌 경우
 				// proxy ARP
-				if() { // sender의 ip != dst의 ip
+				if(send_ip_b != target_ip_b) { // sender의 ip != dst의 ip
 				// 자신의 proxy table 확인
+				boolean check = ProxyCheck(ip_buf);
 				
 				// 만약 proxy table에 target's mac 주소 있으면 target's mac 주소 채움
 				// proxy table에 있으면 Dlg로 table 보내주기.
-				
 				// sender's와 target's 위치 swap.
-				
 				// opcode 2로 변경
-				
+				if(check==true) {
+					for(int i = 0; i < 4; i++) {	// target ip 주소 바꾸기
+						frame.target_ip.addr[i] = input[14+i];
+					}
+					
+					for(int i = 0; i < 6; i++) {
+						frame.target_mac.addr[i] = input[8+i];
+					}
+					
+					frame.opcode = intToByte2(2);
+			
+					ARPSend(send_ip_b, target_ip_b);
+					frame.opcode = intToByte2(1);
+					
+					((ARPDlg) ARPDlg.m_LayerMgr.GetLayer("GUI")).setProxyCache(proxyCacheTable);
+					}
 				}
 			}
 
@@ -354,9 +387,11 @@ public class ARPLayer implements BaseLayer {
 		this.SetUpperLayer(pUULayer);
 		pUULayer.SetUnderLayer(this);
 	}
-	public ArrayList<ArrayList<byte[]>> getCacheTable(){
+
+	public ArrayList<ArrayList<byte[]>> getCacheTable() {
 		return this.cacheTable;
 	}
+
 	public int getState() {
 		return this.state;
 	}
