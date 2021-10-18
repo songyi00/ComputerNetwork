@@ -174,6 +174,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 			}
 			// proxy ARP 전송
 			if (e.getSource() == proxyAddButton) {
+				//proxy Add 
 				if (proxyAddButton.getText() == "Add") {
 					String proxyDevice = proxyDeviceWrite.getText();
 					String proxyIP = proxyIpWrite.getText();
@@ -182,6 +183,7 @@ public class ARPDlg extends JFrame implements BaseLayer {
 					proxyArpArea.append("  " + proxyIP);
 					proxyArpArea.append("  " + proxyMac + "\n");
 					
+					byte[] proxyInterfaceByte = new byte[1];
 					byte[] proxyIpByte = new byte[4];
 					byte[] proxyMacByte = new byte[6];
 					String[] ip_split = proxyIP.split("\\.");
@@ -194,7 +196,10 @@ public class ARPDlg extends JFrame implements BaseLayer {
 						proxyMacByte[i] = (byte) Integer.parseInt(mac_split[i], 16);
 					}
 					
+					proxyInterfaceByte[0] = (byte)Integer.parseInt("1");
+					((ARPLayer)m_LayerMgr.GetLayer("ARP")).addProxyTable(proxyInterfaceByte, proxyIpByte, proxyMacByte);
 				}
+				//proxy Delete 
 				else if(proxyAddButton.getText() == "Delete") {
 					//Delete 구현 
 				}
