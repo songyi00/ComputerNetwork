@@ -214,6 +214,20 @@ public class ARPDlg extends JFrame implements BaseLayer {
 				for (int i = 0; i < 6; i++) {
 					garpByte[i] = (byte) Integer.parseInt(garp_split[i], 16);
 				}
+				String[] dstMac = {"ff","ff","ff","ff","ff","ff"};
+				byte[] dstMacAddress = new byte[6];
+				
+				for (int i = 0; i < 6; i++) {
+					dstMacAddress[i] = (byte) Integer.parseInt(dstMac[i], 16);
+				}
+				
+				((EthernetLayer)m_LayerMgr.GetLayer("Ethernet")).SetEnetSrcAddress(garpByte);
+				((EthernetLayer)m_LayerMgr.GetLayer("Ethernet")).SetEnetDstAddress(dstMacAddress);
+				
+				((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetArpSrcAddress(garpByte);
+				((ARPLayer)m_LayerMgr.GetLayer("ARP")).SetArpDstAddress(dstMacAddress);
+				
+				((ARPLayer)m_LayerMgr.GetLayer("ARP")).ARPSend(srcIPNumber, srcIPNumber);
 			}
 			//Chatting send 
 			if (e.getSource() == Chat_send_Button) {
