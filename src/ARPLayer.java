@@ -215,6 +215,17 @@ public class ARPLayer implements BaseLayer {
 				ARPSend(send_ip_b, target_ip_b);
 				frame.opcode = intToByte2(1);
 				
+			}else { // 내가 목적지가 아닌 경우
+				// GARP 확인
+				if() {	// sender의 ip == dst의 ip
+				
+					
+				}
+				// proxy ARP
+				else { // sender의 ip != dst의 ip
+				// 자신의 proxy table 확인
+					
+				}
 			}
 
 			return true;
