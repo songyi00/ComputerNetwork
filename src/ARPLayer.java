@@ -160,7 +160,6 @@ public class ARPLayer implements BaseLayer {
 	               //garp
 	               cacheTable.get(i).set(1, mac_buf);
 	            }
-	            break;
 	         }
 	      }
 	      
@@ -204,7 +203,7 @@ public class ARPLayer implements BaseLayer {
 			boolean flag = true;
 			ArrayList<byte[]> proxy = proxyCacheTable.get(i);
 			for (int j = 0; j < 4; j++) {
-				if (proxy.get(1)[j] == dst_ip[i]) {
+				if (proxy.get(1)[j] == dst_ip[j]) {
 					continue;
 				} else {
 					flag = false;
@@ -262,7 +261,7 @@ public class ARPLayer implements BaseLayer {
 				
 			}else { // 내가 목적지가 아닌 경우
 				// proxy ARP
-				if(send_ip_b != target_ip_b) { // sender의 ip != dst의 ip
+				System.out.println("proxy ip buf는?");
 				// 자신의 proxy table 확인
 				boolean check = ProxyCheck(ip_buf);
 				
@@ -271,23 +270,15 @@ public class ARPLayer implements BaseLayer {
 				// sender's와 target's 위치 swap.
 				// opcode 2로 변경
 				if(check==true) {
-					for(int i = 0; i < 4; i++) {	// target ip 주소 바꾸기
-						frame.target_ip.addr[i] = input[14+i];
-					}
-					
-					for(int i = 0; i < 6; i++) {
-						frame.target_mac.addr[i] = input[8+i];
-					}
-					
 					frame.opcode = intToByte2(2);
 			
 					ARPSend(send_ip_b, target_ip_b);
 					frame.opcode = intToByte2(1);
 					
-					((ARPDlg) ARPDlg.m_LayerMgr.GetLayer("GUI")).setProxyCache(proxyCacheTable);
+					((ARPDlg) ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
 					}
 				}
-			}
+			
 
 			return true;
 		} else if (ARP_Request == 2) { // ARP Reply
