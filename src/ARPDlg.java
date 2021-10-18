@@ -655,6 +655,41 @@ public class ARPDlg extends JFrame implements BaseLayer {
 		
 	}
 	
+	// cache table setting
+	// interface , ip, mac 
+	public void setProxyCache(ArrayList<ArrayList<byte[]>> cacheTable) {
+		this.cacheTable = cacheTable;
+		cacheArea.setText("");
+		//byte[] ipAddressByte = new byte[4];
+		//byte[] macAddressByte = new byte[6];
+		System.out.println("set arp cache");
+
+		for(int i=0; i<cacheTable.size(); i++) {
+			byte[] interface_byte = cacheTable.get(i).get(0);
+			byte[] ip_byte = cacheTable.get(i).get(1);
+			byte[] mac_byte = cacheTable.get(i).get(2);
+			
+			String ipByte1 = Integer.toString(Byte.toUnsignedInt(ip_byte[0]));
+			String ipByte2 = Integer.toString(Byte.toUnsignedInt(ip_byte[1]));
+			String ipByte3 = Integer.toString(Byte.toUnsignedInt(ip_byte[2]));
+			String ipByte4 = Integer.toString(Byte.toUnsignedInt(ip_byte[3]));
+			
+			String macByte1 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[0]));
+			String macByte2 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[1]));
+			String macByte3 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[2]));
+			String macByte4 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[3]));
+			String macByte5 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[4]));
+			String macByte6 = Integer.toHexString(Byte.toUnsignedInt(mac_byte[5]));
+			
+			cacheArea.append("Interface"+Byte.toUnsignedInt(interface_byte[0]));
+			cacheArea.append(ipByte1+"."+ipByte2+"."+ipByte3+"."+ipByte4);
+			cacheArea.append("  "+macByte1+"-"+macByte2+"-"+macByte3+"-"+macByte4+"-"+macByte5+"-"+macByte6);
+			System.out.println(ipByte1+"."+ipByte2+"."+ipByte3+"."+ipByte4);
+			System.out.println("  "+macByte1+"-"+macByte2+"-"+macByte3+"-"+macByte4+"-"+macByte5+"-"+macByte6);
+
+		}
+	}
+	
 	private int byte2ToInt(byte value1, byte value2) {
         return (int)((value1 << 8) | (value2));
     }
