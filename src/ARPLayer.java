@@ -224,7 +224,8 @@ public class ARPLayer implements BaseLayer {
 				// proxy ARP
 				else { // sender의 ip != dst의 ip
 				// 자신의 proxy table 확인
-					
+				// 만약 proxy table에 target's mac 주소 있으면 target's mac 주소 채움
+				// sender's와 target's 위치 swap.
 				}
 			}
 
