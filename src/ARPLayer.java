@@ -170,7 +170,8 @@ public class ARPLayer implements BaseLayer {
 	         cacheTable.add(cache);
 	      }
 	      ((ARPDlg)ARPDlg.m_LayerMgr.GetLayer("GUI")).setArpCache(cacheTable);
-	      return true; 
+	      System.out.println(frame.sender_mac.addr[2]+ "." + frame.sender_mac.addr[3]);
+	      return true;
 	   }
 
 	// proxy Table에 채우는 함수
