@@ -51,8 +51,8 @@ public class ARPLayer implements BaseLayer {
 			this.sender_ip = new _IP_ADDR();
 			this.target_ip = new _IP_ADDR();
 			this.opcode = new byte[2];
-			this.hardsize = 1;
-			this.protsize = 1;
+			this.hardsize = 6;
+			this.protsize = 4;
 			this.hardtype = new byte[2];
 			this.prottype = new byte[2];
 			this.opcode = intToByte2(1); // default 1
