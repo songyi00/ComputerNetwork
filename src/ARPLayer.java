@@ -80,8 +80,8 @@ public class ARPLayer implements BaseLayer {
 			frame.hardtype[k] = (byte) 0x00;
 			frame.prottype[k] = (byte) 0x00;
 		}
-		frame.hardsize = 1;
-		frame.protsize = 1;
+		frame.hardsize = 6;
+		frame.protsize = 4;
 		frame.opcode = intToByte2(1);
 	}
 
